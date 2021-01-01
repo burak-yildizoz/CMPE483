@@ -50,5 +50,6 @@ contract BULOT{
  * buyTicket() ticket_no return etmeli, değil mi?
  * storage'dan eski lotterylerin bilgilerini silmeli miyiz?                                     //eski lotterylerdeki ödülleri de sonradan alabilmeli onun için lottery_numberlar silinmemeli. hashleri silmek gerekebilir. 
  * her haftanın lotosu için yeni contract mı deploy edilmeli, aynı contract mı kullanılmalı?    //muhtemelen aynı
+ * getIthWinningTicket() fonksiyonunun ticket_no yerine lottery_no argüman alması lazım değil mi?
  * 
  * /
