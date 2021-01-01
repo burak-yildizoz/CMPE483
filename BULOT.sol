@@ -39,7 +39,7 @@ contract BULOT{
     function getLastBoughtTicketNo  (uint lottery_no)                   public view returns (uint)
     function getIthBoughtTicketNo   (uint i,uint lottery_no)            public view returns (uint)
     function checkIfTicketWon       (uint lottery_no, uint ticket_no)   public view returns (uint amount)
-    function getIthWinningTicket    (uint i, uint ticket_no)            public view returns (uint ticket_no,uint amount)
+    function getIthWinningTicket    (uint i, uint lottery_no)            public view returns (uint ticket_no,uint amount)
     function getCurrentLotteryNo    ()                                  public view returns (uint lottery_no)
     function getMoneyCollected      (uint lottery_no)                   public view returns (uint amount)
     
