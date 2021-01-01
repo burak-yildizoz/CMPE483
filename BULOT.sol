@@ -26,7 +26,7 @@ contract BULOT{
         //require(ticketowner[lottery_no][ticket_no])
         //require(notrevealed[lottery_no][ticket_no])      //bu satır erc20'deki allowed olayına bakarak değiştirilebilir, ayrıca üstteki require içinde &&'lanabilir.
         //uint amount=this.checkIfTicketWon(lottery_no,ticket_no)
-        //
+        // //SETTLED: This will call checkIfTicketWon()
         //  //burada notrevealed'dan lottery_no, ticket_no kısmı silinebilir. 
     
     /*function currentWeek () private returns (uint){
@@ -38,8 +38,8 @@ contract BULOT{
     //.view
     function getLastBoughtTicketNo  (uint lottery_no)                   public view returns (uint)
     function getIthBoughtTicketNo   (uint i,uint lottery_no)            public view returns (uint)
-    function checkIfTicketWon       (uint lottery_no, uint ticket_no)   public view returns (uint amount)
-    function getIthWinningTicket    (uint i, uint lottery_no)            public view returns (uint ticket_no,uint amount)
+    function checkIfTicketWon       (uint lottery_no, uint ticket_no)   public view returns (uint amount) //SETTLED: This will call getIthWinningTicket for all I
+    function getIthWinningTicket    (uint i, uint lottery_no)            public view returns (uint ticket_no,uint amount) 
     function getCurrentLotteryNo    ()                                  public view returns (uint lottery_no)
     function getMoneyCollected      (uint lottery_no)                   public view returns (uint amount)
     
