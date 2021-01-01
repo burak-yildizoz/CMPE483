@@ -5,14 +5,14 @@ contract BULOT{
     //.data 
     //EIP20 TL_BANK;
     //mapping(uint => mapping(uint => bytes32)) hashes;  //database for hash of random numbers stored:   first index= lottery_no, second index ticket_no 
-    //mapping(uint => bytes32) lotterynumber             //list for the random numbers calculated for each week's lottery. //UPDATE TAVSİYESİ: her reveal ardından lotterynumber=sha3(lotterynumber,revealedrandom)
+    //mapping(uint => bytes32) lotteryRandom             //list for the random numbers calculated for each week's lottery. //UPDATE TAVSİYESİ: her reveal ardından lotteryRandom=sha3(lotteryRandom,revealedrandom)
     //mapping(uint => mapping(uint=> address)) ticketowner// (lotteryno,ticketno)=>owner   //to authenticate withdraw //we could make ticket_no unique to avoid some extra storage
     //mapping(uint => mapping(uint => bool)) notrevealed    //(lotteryno,ticketno)=> redeemable (reveal etmeyen adam sonradan ödül de alamaz)
     
     //.code
     //implement constructor
     //implement fallback (in case someone sends ethers to the contract)
-    // ? it may make sense to implement reward calculatro as a pure function //RANDOM TAVSİYESİ: i'nci ödülü kazanan ticket ID = sha3(lotterynumber,i) % M
+    // ? it may make sense to implement reward calculatro as a pure function //RANDOM TAVSİYESİ: i'nci ödülü kazanan ticket ID = sha3(lotteryRandom,i) % M
     
     function buyTicket              (bytes32 hash_rnd_number)           public // returns (uint)
         // require(TL_BANK.transferFrom(msg.sender, address(this), 1)); //buna bir de exception handling lazım olabilir?
