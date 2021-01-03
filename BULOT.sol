@@ -1,7 +1,7 @@
 pragma solidity >=0.6.0 <0.7.0;
 // SPDX-License-Identifier: AGPL-3.0-only
 
-//import "./EIP20.sol";
+//import "./IERC20.sol";
 
 contract BULOT
 {
@@ -9,7 +9,7 @@ contract BULOT
     // data                                                                       //
     ////////////////////////////////////////////////////////////////////////////////
 
-    EIP20 TL_BANK;
+    IERC20 private TL_BANK;
     mapping(uint => mapping(uint => bytes32)) hashes;     // database for hash of random numbers stored:   first index: lottery_no, second index: ticket_no
     mapping(uint => bytes32) lotteryRandom;               // list for the random numbers calculated for each week's lottery
     mapping(uint => mapping(uint=> address)) ticketowner; // (lotteryno, ticketno) => owner   // to authenticate withdraw // we could make ticket_no unique to avoid some extra storage
@@ -24,8 +24,8 @@ contract BULOT
     ////////////////////////////////////////////////////////////////////////////////
 
     //implement constructor
-    constructor(EIP20 TL_contract){
-        TL_BANK=TL_contract;
+    constructor(address TL_contract) public {
+        TL_BANK=IERC20(TL_contract);
     }
 
     //implement fallback (in case someone sends ethers to the contract)
