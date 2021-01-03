@@ -1,49 +1,84 @@
-pragma solidity >=0.4.22 <0.7.0;
+pragma solidity >=0.6.0 <0.7.0;
 // SPDX-License-Identifier: AGPL-3.0-only
 
 //import "./EIP20.sol";
 
-contract BULOT{
-    //.data
+contract BULOT
+{
+    ////////////////////////////////////////////////////////////////////////////////
+    // data                                                                       //
+    ////////////////////////////////////////////////////////////////////////////////
+
     //EIP20 TL_BANK;
     mapping(uint => mapping(uint => bytes32)) hashes;     // database for hash of random numbers stored:   first index: lottery_no, second index: ticket_no
-    mapping(uint => bytes32) lotteryRandom;               // list for the random numbers calculated for each week's lottery. // UPDATE TAVSİYESİ: her reveal ardından lotteryRandom = sha3(lotteryRandom, revealedrandom)
+    mapping(uint => bytes32) lotteryRandom;               // list for the random numbers calculated for each week's lottery
     mapping(uint => mapping(uint=> address)) ticketowner; // (lotteryno, ticketno) => owner   // to authenticate withdraw // we could make ticket_no unique to avoid some extra storage
     mapping(uint => mapping(uint => bool)) notrevealed;   // (lotteryno, ticketno) => redeemable (reveal etmeyen adam sonradan ödül de alamaz)
+    mapping(uint => mapping(uint => bool)) notclaimed;    // (lotteryno, ticketno) => remunerable
 
-    //.code
+    ////////////////////////////////////////////////////////////////////////////////
+    // code                                                                       //
+    ////////////////////////////////////////////////////////////////////////////////
+
     //implement constructor
+
     //implement fallback (in case someone sends ethers to the contract)
-    // ? it may make sense to implement reward calculator as a pure function // RANDOM TAVSİYESİ: i'nci ödülü kazanan ticket ID = sha3(lotteryRandom,i) % M
 
-    function buyTicket              (bytes32 hash_rnd_number)           public returns (uint) {
-        require(false, "Not implemented yet");
+    function buyTicket              (bytes32 hash_rnd_number)           public returns (uint)
+    {
+        // hash_rnd_number == keccak256(abi.encode(rnd_number))
         //require(TL_BANK.transferFrom(msg.sender, address(this), 1)); //buna bir de exception handling lazım olabilir?
+        uint lottery_no = getCurrentLotteryNo();
+        uint ticket_no;
+        try this.getLastBoughtTicketNo(lottery_no) returns (uint last_ticket_no) {
+            ticket_no = last_ticket_no + 1;
+        } catch {
+            ticket_no = 0;
+        }
+        hashes[lottery_no][ticket_no] = hash_rnd_number;
+        ticketowner[lottery_no][ticket_no] = msg.sender;
+        notrevealed[lottery_no][ticket_no] = true;
+        notclaimed[lottery_no][ticket_no] = true;
+        return ticket_no;
     }
 
-
-    function revealRndNumber        (uint ticketno, uint rnd_number)    public { // zamanı kontrol etmeye gerek yok, zaten hash tutmaz o zaman.
-        require(false, "Not implemented yet");
-        //require(sha3(rnd_number) == hashes[this.currentWeek()-1][ticketno]);
+    function revealRndNumber        (uint ticket_no, uint rnd_number)    public
+    {
+        uint last_lottery_no = getCurrentLotteryNo() - 1;
+        require(ticketowner[last_lottery_no][ticket_no] == msg.sender, "Only the ticket owner can perform this operation");
+        require(notrevealed[last_lottery_no][ticket_no], "You have already revealed the ticket");
+        require(keccak256(abi.encode(rnd_number)) == hashes[last_lottery_no][ticket_no], "Your random number is not correct!");
+        lotteryRandom[last_lottery_no] = keccak256(abi.encode(lotteryRandom[last_lottery_no], rnd_number));
+        notrevealed[last_lottery_no][ticket_no] = false;
     }
 
-
-    function withdrawTicketPrize    (uint lottery_no, uint ticket_no)   public { // eğer unique ticket_no kullanırsak ilk argümana gerek kalmayabilir.
+    function withdrawTicketPrize    (uint lottery_no, uint ticket_no)   public
+    {
+        require(lottery_no < getCurrentLotteryNo() - 1, "Rewards can be claimed after reveal stage ends");
+        require(ticketowner[lottery_no][ticket_no] == msg.sender, "Only the ticket owner can claim reward");
+        require(notrevealed[lottery_no][ticket_no] != true, "You did not reveal your random number. No rewards can be claimed!");
+        require(notclaimed[lottery_no][ticket_no], "You have already claimed your reward");
+        // erc20'deki allowed olayına bakarak değiştirilebilir
         require(false, "Not implemented yet");
-        //require(ticketowner[lottery_no][ticket_no])
-        //require(notrevealed[lottery_no][ticket_no])      // bu satır erc20'deki allowed olayına bakarak değiştirilebilir, ayrıca üstteki require içinde &&'lanabilir.
         //uint amount = this.checkIfTicketWon(lottery_no, ticket_no)
         // SETTLED: This will call checkIfTicketWon()
-        // burada notrevealed'dan lottery_no, ticket_no kısmı silinebilir.
+        notclaimed[lottery_no][ticket_no] = false;
     }
 
-    function currentWeek            ()                                  private view returns (uint) {
+    ////////////////////////////////////////////////////////////////////////////////
+    // private                                                                    //
+    ////////////////////////////////////////////////////////////////////////////////
+
+    function currentWeek            ()                                  private view returns (uint)
+    {
         return block.timestamp / /*SECONDS_PER_WEEK*/ (60*60*24*7);
     }
 
     // https://ethereum.stackexchange.com/questions/8086/logarithm-math-operation-in-solidity#30168
-    function log_2                  (uint x)                            private view returns (uint y) {
-        assembly {
+    function log_2                  (uint x)                            private pure returns (uint y)
+    {
+        assembly
+        {
             let arg := x
             x := sub(x,1)
             x := or(x, div(x, 0x02))
@@ -73,18 +108,35 @@ contract BULOT{
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
+    // view                                                                       //
+    ////////////////////////////////////////////////////////////////////////////////
 
-    //.view
-    function getLastBoughtTicketNo  (uint lottery_no)                   public view returns (uint) {
-        require(false, "Not implemented yet");
+    function getLastBoughtTicketNo  (uint lottery_no)                   public view returns (uint)
+    {
+        uint i = 0;
+        while (true)
+        {
+            if (ticketowner[lottery_no][i] == address(0))
+                break;
+            i++;
+        }
+        require(i != 0, "No ticket sold!");
+        return i - 1;
     }
-    function getIthBoughtTicketNo   (uint i, uint lottery_no)           public view returns (uint) {
+
+    function getIthBoughtTicketNo   (uint i, uint lottery_no)           public view returns (uint)
+    {
         require(ticketowner[lottery_no][i] != address(0), "Ticket is not sold");
         return i;
     }
-    function checkIfTicketWon       (uint lottery_no, uint ticket_no)   public view returns (uint amount) { // SETTLED: This will call getIthWinningTicket for all I
-        require(false, "Not implemented yet");
-        for (uint i=0; i<log_2(getLastBoughtTicketNo(lottery_no)); i++)
+
+    function checkIfTicketWon       (uint lottery_no, uint ticket_no)   public view returns (uint amount)
+    {
+        require(lottery_no < getCurrentLotteryNo() - 1, "Tickets are rewarded after reveal stage ends");
+        uint last_ticket_no = getLastBoughtTicketNo(lottery_no);
+        require(ticket_no <= last_ticket_no, "Ticket is not sold");
+        for (uint i = 0; i <= log_2(last_ticket_no + 1); i++)
         {
             (uint ith_ticket_no, uint ith_amount) = getIthWinningTicket(i, lottery_no);
             if (ith_ticket_no == ticket_no)
@@ -92,19 +144,29 @@ contract BULOT{
         }
         return 0;
     }
-    function getIthWinningTicket    (uint i, uint lottery_no)           public view returns (uint ticket_no, uint amount) {
-        require(false, "Not implemented yet");
+
+    function getIthWinningTicket    (uint i, uint lottery_no)           public view returns (uint ticket_no, uint amount)
+    {
+        require(lottery_no < getCurrentLotteryNo() - 1, "Tickets are rewarded after reveal stage ends");
+        uint M = getMoneyCollected(lottery_no);
+        require(i > 0 && i <= log_2(M), "Invalid reward number");
+        amount = (M / 2**i) + ((M / 2**(i-1)) % 2);
+        // disadvantages of the following method:
+        // maximum 2^32 tickets are allowed because keccak256 returns bytes32
+        // does not check whether the ticket was revealed, in that case the money won't be rewarded to anyone
+        ticket_no = uint(keccak256(abi.encode(lotteryRandom[lottery_no], i))) % M;
     }
-    function getCurrentLotteryNo    ()                                  public view returns (uint lottery_no) {
+
+    function getCurrentLotteryNo    ()                                  public view returns (uint lottery_no)
+    {
         return currentWeek();
     }
+
     function getMoneyCollected      (uint lottery_no)                   public view returns (uint amount)
     {
-        require(false, "Not implemented yet");
+        return getLastBoughtTicketNo(lottery_no) + 1;
     }
-
 }
-
 
 /*************HOCAYA SORULACAK SORULAR:***************
  * buyTicket() ticket_no return etmeli, değil mi?
