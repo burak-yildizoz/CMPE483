@@ -16,6 +16,8 @@ contract BULOT
     mapping(uint => mapping(uint => bool)) notrevealed;   // (lotteryno, ticketno) => redeemable (reveal etmeyen adam sonradan ödül de alamaz)
     mapping(uint => mapping(uint => bool)) notclaimed;    // (lotteryno, ticketno) => remunerable
 
+    // TODO: use events
+
     ////////////////////////////////////////////////////////////////////////////////
     // code                                                                       //
     ////////////////////////////////////////////////////////////////////////////////
@@ -24,12 +26,11 @@ contract BULOT
 
     //implement fallback (in case someone sends ethers to the contract)
 
-    function buyTicket              (bytes32 hash_rnd_number)           public returns (uint)
+    function buyTicket              (bytes32 hash_rnd_number)           public returns (uint ticket_no)
     {
         // hash_rnd_number == keccak256(abi.encode(rnd_number))
         //require(TL_BANK.transferFrom(msg.sender, address(this), 1)); //buna bir de exception handling lazım olabilir?
         uint lottery_no = getCurrentLotteryNo();
-        uint ticket_no;
         try this.getLastBoughtTicketNo(lottery_no) returns (uint last_ticket_no) {
             ticket_no = last_ticket_no + 1;
         } catch {
@@ -39,7 +40,6 @@ contract BULOT
         ticketowner[lottery_no][ticket_no] = msg.sender;
         notrevealed[lottery_no][ticket_no] = true;
         notclaimed[lottery_no][ticket_no] = true;
-        return ticket_no;
     }
 
     function revealRndNumber        (uint ticket_no, uint rnd_number)    public
@@ -136,7 +136,8 @@ contract BULOT
         require(lottery_no < getCurrentLotteryNo() - 1, "Tickets are rewarded after reveal stage ends");
         uint last_ticket_no = getLastBoughtTicketNo(lottery_no);
         require(ticket_no <= last_ticket_no, "Ticket is not sold");
-        for (uint i = 0; i <= log_2(last_ticket_no + 1); i++)
+        uint M = last_ticket_no + 1; //getMoneyCollected(lottery_no);
+        for (uint i = 1; i <= log_2(M) + 1; i++)
         {
             (uint ith_ticket_no, uint ith_amount) = getIthWinningTicket(i, lottery_no);
             if (ith_ticket_no == ticket_no)
@@ -154,6 +155,7 @@ contract BULOT
         // disadvantages of the following method:
         // maximum 2^32 tickets are allowed because keccak256 returns bytes32
         // does not check whether the ticket was revealed, in that case the money won't be rewarded to anyone
+        // TODO: use the timestamp of the block after reveal stage
         ticket_no = uint(keccak256(abi.encode(lotteryRandom[lottery_no], i))) % M;
     }
 
@@ -164,6 +166,7 @@ contract BULOT
 
     function getMoneyCollected      (uint lottery_no)                   public view returns (uint amount)
     {
+        // TODO: award the remaining money from the last week that were not revealed
         return getLastBoughtTicketNo(lottery_no) + 1;
     }
 }
