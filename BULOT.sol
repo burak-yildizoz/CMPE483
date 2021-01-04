@@ -20,7 +20,7 @@ contract BULOT
     mapping(uint =>uint) moneycollected;
     mapping(uint =>uint) moneyreturned;
     uint totalmoneycollected;                //failsafe accounting variables
-    uint totalmoneyreturned:
+    uint totalmoneyreturned;
    
     // TODO: use events for logging https://github.com/ethchange/smart-exchange/blob/master/lib/contracts/SmartExchange.sol
     // TODO: implement M counter variable for getLastBoughtTicket
