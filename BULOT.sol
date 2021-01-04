@@ -42,7 +42,7 @@ contract BULOT
     function buyTicket              (bytes32 hash_rnd_number)           payable public returns (uint ticket_no)
     {
         // hash_rnd_number == keccak256(abi.encode(rnd_number))
-        require(TL_BANK.transferFrom(msg.sender, address(this), 1)); //buna bir de exception handling lazım olabilir?
+        require(TL_BANK.transferFrom(msg.sender, address(this), 10)); //buna bir de exception handling lazım olabilir?
         uint lottery_no = getCurrentLotteryNo();
         try this.getLastBoughtTicketNo(lottery_no) returns (uint last_ticket_no) {
             ticket_no = last_ticket_no + 1;
