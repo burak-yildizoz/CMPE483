@@ -1,7 +1,7 @@
 pragma solidity >=0.6.0 <0.7.0;
 // SPDX-License-Identifier: AGPL-3.0-only
 
-//import "./IERC20.sol";
+import "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/master/contracts/token/ERC20/IERC20.sol";
 
 contract BULOT
 {
@@ -16,23 +16,30 @@ contract BULOT
     mapping(uint => mapping(uint => bool)) notrevealed;   // (lotteryno, ticketno) => redeemable (reveal etmeyen adam sonradan ödül de alamaz)
     mapping(uint => mapping(uint => bool)) notclaimed;    // (lotteryno, ticketno) => remunerable
 
-    // TODO: use events
+    // TODO: use events for logging https://github.com/ethchange/smart-exchange/blob/master/lib/contracts/SmartExchange.sol
     // TODO: implement M counter variable for getLastBoughtTicket
 
     ////////////////////////////////////////////////////////////////////////////////
     // code                                                                       //
     ////////////////////////////////////////////////////////////////////////////////
 
-    //implement constructor
-    constructor(address TL_contract) public {
-        TL_BANK=IERC20(TL_contract);
+    constructor                     (address TL_contract)               public
+    {
+        TL_BANK = IERC20(TL_contract);
     }
 
     //implement fallback (in case someone sends ethers to the contract)
     //The instructor may ask us to delete this
-    function () external payable {}
+    fallback                        ()                                  external    // not payable
+    {}
 
-    function buyTicket              (bytes32 hash_rnd_number)           public returns (uint ticket_no)
+    // https://stackoverflow.com/questions/59651032/why-does-solidity-suggest-me-to-implement-a-receive-ether-function-when-i-have-a
+    receive                         ()                                  external payable
+    {
+        require(false, "This is an automated contract. Do not giveaway!");
+    }
+
+    function buyTicket              (bytes32 hash_rnd_number)           payable public returns (uint ticket_no)
     {
         // hash_rnd_number == keccak256(abi.encode(rnd_number))
         require(TL_BANK.transferFrom(msg.sender, address(this), 1)); //buna bir de exception handling lazım olabilir?
@@ -54,8 +61,8 @@ contract BULOT
         require(ticketowner[last_lottery_no][ticket_no] == msg.sender, "Only the ticket owner can perform this operation");
         require(notrevealed[last_lottery_no][ticket_no], "You have already revealed the ticket");
         require(keccak256(abi.encode(rnd_number)) == hashes[last_lottery_no][ticket_no], "Your random number is not correct!");
-        lotteryRandom[last_lottery_no] = keccak256(abi.encode(lotteryRandom[last_lottery_no], rnd_number));
         notrevealed[last_lottery_no][ticket_no] = false;
+        lotteryRandom[last_lottery_no] = keccak256(abi.encode(lotteryRandom[last_lottery_no], rnd_number));
     }
 
     function withdrawTicketPrize    (uint lottery_no, uint ticket_no)   public
@@ -64,13 +71,12 @@ contract BULOT
         require(ticketowner[lottery_no][ticket_no] == msg.sender, "Only the ticket owner can claim reward");
         require(notrevealed[lottery_no][ticket_no] != true, "You did not reveal your random number. No rewards can be claimed!");
         require(notclaimed[lottery_no][ticket_no], "You have already claimed your reward");
-        
+
         // erc20'deki allowed olayına bakarak değiştirilebilir
-        uint amount = this.checkIfTicketWon(lottery_no, ticket_no);
-        require(amount>0,"You didn't win this time");
-        //uint amount = this.checkIfTicketWon(lottery_no, ticket_no)
+        uint amount = checkIfTicketWon(lottery_no, ticket_no);
+        require(amount > 0, "You didn't win this time");
         notclaimed[lottery_no][ticket_no] = false;
-        TL_BANK.transfer(amount);                  //This function merits some form of fail-safe control
+        require(TL_BANK.transfer(msg.sender, amount), "Transaction failed!");  //This function merits some form of fail-safe control
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -160,9 +166,8 @@ contract BULOT
         uint M = getMoneyCollected(lottery_no);
         require(i > 0 && i <= log_2(M), "Invalid reward number");
         amount = (M / 2**i) + ((M / 2**(i-1)) % 2);
-        // disadvantages of the following method:
-        // does not check whether the ticket was revealed, in that case the money won't be rewarded to anyone
-        // TODO: use the timestamp of the block after reveal stage
+        // disadvantage: does not check whether the ticket was revealed, in that case the money won't be rewarded to anyone
+        // TODO: use the block after reveal stage for randomness https://docs.soliditylang.org/en/v0.6.0/units-and-global-variables.html
         ticket_no = uint(keccak256(abi.encode(lotteryRandom[lottery_no], i))) % M;
     }
 
@@ -182,7 +187,6 @@ contract BULOT
  * buyTicket() ticket_no return etmeli, değil mi?
  * storage'dan eski lotterylerin bilgilerini silmeli miyiz?                                     // eski lotterylerdeki ödülleri de sonradan alabilmeli onun için lottery_numberlar silinmemeli. hashleri silmek gerekebilir.
  * her haftanın lotosu için yeni contract mı deploy edilmeli, aynı contract mı kullanılmalı?    // muhtemelen aynı
- * getIthWinningTicket() fonksiyonunun ticket_no yerine lottery_no argüman alması lazım değil mi?
  * fallback function implement edilmeli mi?
  * piyango sayısı reveal etmemiş birine vurabilir mi?
  */
