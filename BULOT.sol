@@ -16,14 +16,13 @@ contract BULOT
     mapping(uint => mapping(uint=> address)) ticketowner; // (lotteryno, ticketno) => owner   // to authenticate withdraw // we could make ticket_no unique to avoid some extra storage
     mapping(uint => mapping(uint => bool)) notrevealed;   // (lotteryno, ticketno) => redeemable (reveal etmeyen adam sonradan ödül de alamaz)
     mapping(uint => mapping(uint => bool)) notclaimed;    // (lotteryno, ticketno) => remunerable
-    mapping(uint =>uint)  Money;                              // (lotteryno)=> M  (number of tickets sold for lotteryno). Updated by buyTicket
+    mapping(uint =>uint)  ticketcount;                              // (lotteryno)=> ticketcount  (number of tickets sold for lotteryno). Updated by buyTicket
     mapping(uint =>uint) moneycollected;
     mapping(uint =>uint) moneyreturned;
     uint totalmoneycollected;                //failsafe accounting variables
     uint totalmoneyreturned;
 
     // TODO: use events for logging https://github.com/ethchange/smart-exchange/blob/master/lib/contracts/SmartExchange.sol
-    // TODO: implement M counter variable for getLastBoughtTicket
 
     ////////////////////////////////////////////////////////////////////////////////
     // code                                                                       //
@@ -34,8 +33,6 @@ contract BULOT
         TL_BANK = IERC20(TL_contract);
     }
 
-    //implement fallback (in case someone sends ethers to the contract)
-    //The instructor may ask us to delete this
     fallback                        ()                                  external    // not payable
     {}
 
@@ -50,15 +47,10 @@ contract BULOT
         // hash_rnd_number == keccak256(abi.encode(rnd_number))
         require(TL_BANK.transferFrom(msg.sender, address(this), 10)); //buna bir de exception handling lazım olabilir?
         uint lottery_no = getCurrentLotteryNo();
-        /*try this.getLastBoughtTicketNo(lottery_no) returns (uint last_ticket_no) {
-            ticket_no = last_ticket_no + 1;
-        } catch {
-            ticket_no = 0;
-        }*/
         moneycollected[lottery_no] += PRICE;
         totalmoneycollected += PRICE;
-        ticket_no = Money[lottery_no]; //M is used here to avoid exception from getLastBoughtTicketNo when M==0
-        Money[lottery_no]++;
+        ticket_no = ticketcount[lottery_no]; //ticketcount is used here to avoid exception from getLastBoughtTicketNo when ticketcount==0
+        ticketcount[lottery_no]++;
         hashes[lottery_no][ticket_no] = hash_rnd_number;
         ticketowner[lottery_no][ticket_no] = msg.sender;
         notrevealed[lottery_no][ticket_no] = true;
@@ -81,12 +73,11 @@ contract BULOT
         require(ticketowner[lottery_no][ticket_no] == msg.sender, "Only the ticket owner can claim reward");
         require(notrevealed[lottery_no][ticket_no] != true, "You did not reveal your random number. No rewards can be claimed!");
         require(notclaimed[lottery_no][ticket_no], "You have already claimed your reward");
-
-        // erc20'deki allowed olayına bakarak değiştirilebilir
+        
         uint amount = checkIfTicketWon(lottery_no, ticket_no);
         require(amount > 0, "You didn't win this time");
         notclaimed[lottery_no][ticket_no] = false;
-        require(TL_BANK.transfer(msg.sender, amount), "Transaction failed!");  //This function merits some form of fail-safe control
+        require(TL_BANK.transfer(msg.sender, amount), "Transaction failed!");  //This function merits some form of fail-safe control(comparing accounts here and on erc20)
         moneyreturned[lottery_no] += amount;
         totalmoneyreturned += amount;
     }
@@ -106,17 +97,8 @@ contract BULOT
 
     function getLastBoughtTicketNo  (uint lottery_no)                   public view returns (uint)
     {
-        /*uint i = 0;
-        while (true)
-        {
-            if (ticketowner[lottery_no][i] == address(0))
-                break;
-            i++;
-        }
-        require(i != 0, "No ticket sold!");
-        return i - 1;*/
-        require(Money[lottery_no] > 0, "No tickets bought yet.");
-        return Money[lottery_no] - 1;
+        require(ticketcount[lottery_no] > 0, "No tickets bought yet.");
+        return ticketcount[lottery_no] - 1;
     }
 
     function getIthBoughtTicketNo   (uint i, uint lottery_no)           public view returns (uint)
@@ -130,9 +112,7 @@ contract BULOT
         require(lottery_no < getCurrentLotteryNo() - 1, "Tickets are rewarded after reveal stage ends");
         uint last_ticket_no = getLastBoughtTicketNo(lottery_no);
         require(ticket_no <= last_ticket_no, "Ticket is not sold");
-        //uint M = last_ticket_no + 1; //getMoneyCollected(lottery_no);
-        //for (uint i = 1; i <= log_2(M) + 1; i++)
-        for (uint i = 1; 2**i <= Money[lottery_no]*2; i++)
+        for (uint i = 1; 2**i <= ticketcount[lottery_no]*2; i++)
         {
             (uint ith_ticket_no, uint ith_amount) = getIthWinningTicket(i, lottery_no);
             if (ith_ticket_no == ticket_no)
@@ -144,8 +124,7 @@ contract BULOT
     function getIthWinningTicket    (uint i, uint lottery_no)           public view returns (uint ticket_no, uint amount)
     {
         require(lottery_no < getCurrentLotteryNo() - 1, "Tickets are rewarded after reveal stage ends");
-        uint M = Money[lottery_no]; //getMoneyCollected(lottery_no);
-        //require(i > 0 && i <= log_2(M), "Invalid reward number");
+        uint M = ticketcount[lottery_no];
         require(i > 0 && 2**i <= M, "Invalid reward number");
         amount = (M / 2**i) + ((M / 2**(i-1)) % 2);
         // disadvantage: does not check whether the ticket was revealed, in that case the money won't be rewarded to anyone
@@ -160,8 +139,7 @@ contract BULOT
 
     function getMoneyCollected      (uint lottery_no)                   public view returns (uint amount)
     {
-        // TODO: award the remaining money from the last week that were not revealed
-        //return getLastBoughtTicketNo(lottery_no) + 1;
+        // TODO: award the remaining money from the last week that were not revealed ?
         return moneycollected[lottery_no];
     }
 }
