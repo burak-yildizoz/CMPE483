@@ -89,7 +89,7 @@ contract BULOT
     }
 
     // https://ethereum.stackexchange.com/questions/8086/logarithm-math-operation-in-solidity#30168
-    function log_2                  (uint x)                            private pure returns (uint y)
+    /*function log_2                  (uint x)                            private pure returns (uint y)
     {
         assembly
         {
@@ -120,7 +120,7 @@ contract BULOT
             y := div(mload(add(m,sub(255,a))), shift)
             y := add(y, mul(256, gt(arg, 0x8000000000000000000000000000000000000000000000000000000000000000)))
         }
-    }
+    }*/
 
     ////////////////////////////////////////////////////////////////////////////////
     // view                                                                       //
@@ -151,7 +151,8 @@ contract BULOT
         uint last_ticket_no = getLastBoughtTicketNo(lottery_no);
         require(ticket_no <= last_ticket_no, "Ticket is not sold");
         uint M = last_ticket_no + 1; //getMoneyCollected(lottery_no);
-        for (uint i = 1; i <= log_2(M) + 1; i++)
+        //for (uint i = 1; i <= log_2(M) + 1; i++)
+        for (uint i = 1; 2**i <= M*2; i++)
         {
             (uint ith_ticket_no, uint ith_amount) = getIthWinningTicket(i, lottery_no);
             if (ith_ticket_no == ticket_no)
@@ -164,7 +165,8 @@ contract BULOT
     {
         require(lottery_no < getCurrentLotteryNo() - 1, "Tickets are rewarded after reveal stage ends");
         uint M = getMoneyCollected(lottery_no);
-        require(i > 0 && i <= log_2(M), "Invalid reward number");
+        //require(i > 0 && i <= log_2(M), "Invalid reward number");
+        require(i > 0 && 2**i <= M, "Invalid reward number");
         amount = (M / 2**i) + ((M / 2**(i-1)) % 2);
         // disadvantage: does not check whether the ticket was revealed, in that case the money won't be rewarded to anyone
         // TODO: use the block after reveal stage for randomness https://docs.soliditylang.org/en/v0.6.0/units-and-global-variables.html
