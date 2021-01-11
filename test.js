@@ -471,13 +471,11 @@ bulotabi = [
 erc20address = "0x5a4eBb10942cBf41154F13Ed16cFf57CDE116350"
 bulotaddress = "0x0d3C830D9a79aC2C48290fe73af7039818FC6fe9"
 
-erc20contract = undefined
-bulotcontract = undefined
+var erc20contract = undefined
+var bulotcontract = undefined
 
-function getContracts(){
-    erc20contract = web3.eth.contract(erc20abi).at(erc20address);
-    bulotcontract = web3.eth.contract(bulotabi).at(bulotaddress);
-}
+erc20contract = web3.eth.contract(erc20abi).at(erc20address);
+bulotcontract = web3.eth.contract(bulotabi).at(bulotaddress);
 
 function createAccounts(howmany) {
     for (i=0; i<howmany; i++) {
@@ -505,7 +503,6 @@ function hash(input) {
     return web3.utils.soliditySHA3(input)
 }
 
-getContracts();
 createAccounts(5);
 giveAllowance(5);
 buyTickets(5);
