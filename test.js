@@ -477,6 +477,8 @@ var bulotcontract = undefined
 erc20contract = web3.eth.contract(erc20abi).at(erc20address);
 bulotcontract = web3.eth.contract(bulotabi).at(bulotaddress);
 
+ticketsOfPeople = {}
+
 function createAccounts(howmany) {
     for (i=0; i<howmany; i++) {
         a = personal.newAccount('')
@@ -494,8 +496,8 @@ function giveAllowance(howmany) {
 function buyTickets(howmany) {
     for (i=0; i< howmany; i++) {
         eth.defaultAccount=eth.accounts[i];
-        personal.unlockAccount(eth.accounts[i],'',100);
-        bulotcontract.buyTicket(hash(i*3));
+        thisTicketNo = bulotcontract.buyTicket(hash(i*3));
+        ticketsOfPeople[eth.accounts[i]] = thisTicketNo;
     }
 }
 
@@ -503,6 +505,58 @@ function hash(input) {
     return web3.utils.soliditySHA3(input)
 }
 
-createAccounts(5);
+async function sleep(ms) {
+    x = await new Promise(resolve => setTimeout(resolve, ms));
+    return x; 
+}
+
+function reveal(howmany) {
+    for (i=0; i< howmany; i++) {
+        eth.defaultAccount=eth.accounts[i];
+        personal.unlockAccount(eth.accounts[i],'',100);
+        bulotcontract.revealRndNumber(ticketsOfPeople[eth.accounts[i]], i*3);
+    }
+}
+
+function getCurrentLotteryNo() {
+    return bulotcontract.getCurrentLotteryNo();
+}
+
+function getLastBoughtTicketNo(lotteryNo) {
+    return bulotcontract.getLastBoughtTicketNo(lotteryNo);
+}
+
+function checkIfTicketWon(lotteryNo, ticketNo) {
+    return bulotcontract.checkIfTicketWon(lotteryNo, ticketNo);
+}
+
+function getMoneyCollected(lotteryNo) {
+    return bulotcontract.getMoneyCollected(lotteryNo);
+}
+
+function getWinningTickets(moneyCollected, lotteryNo) {
+    howManyDidWin = Math.ceil(Math.log(moneyCollected));
+    winners = [];
+
+    for (i=1; i <= howManyDidWin; i++) {
+        var {ticket_no, amount} = bulotcontract.getIthWinningTicket(i, lotteryNo);
+        winners.push({ticket_no, amount});
+    }
+
+    return winners;
+}
+
+//createAccounts(5);
 giveAllowance(5);
 buyTickets(5);
+lotteryNo = getCurrentLotteryNo();
+lastTicketNo = getLastBoughtTicketNo(lotteryNo);
+checkIfTicketWon(lotteryNo, lastTicketNo);
+moneyCollected = getMoneyCollected(lotteryNo);
+sleep(1200000);
+reveal(5);
+sleep(1200000);
+nextLotteryNo = getCurrentLotteryNo();
+if(nextLotteryNo == lotteryNo + 1) console.log("next week"); else console.log("not working");
+winners = getWinningTickets(moneyCollected, lotteryNo);
+//TODO : withdrawPrizes(lotteryNo, winners);
