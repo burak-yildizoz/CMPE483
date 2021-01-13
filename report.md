@@ -1,12 +1,9 @@
 # BULOT Ethereum-Based Decentralized Lottery System
 
-https://github.com/burak-yildizoz/CMPE483/compare/ee68452d6a56...9c5bd2a4c01a
-
 **Authors:**
-* Muhammed Enes Toptaş @EnesToptas
-* Burak Yıldızöz @burak-yildizoz
-* Selman Berk Özkurt @SelmanB
-
+* Muhammed Enes Toptaş [@EnesToptas](https://github.com/EnesToptas)
+* Burak Yıldızöz [@burak-yildizoz](https://github.com/burak-yildizoz)
+* Selman Berk Özkurt [@SelmanB](https://github.com/SelmanB)
 
 # Requirements
 The requirements and the interface are defined by the instructor of the course, Prof. Can Özturan. See the accompanying definition pdf for details.
