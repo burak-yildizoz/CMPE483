@@ -1,10 +1,10 @@
 # BULOT Ethereum-Based Decentralized Lottery System
 # CMPE483 Fall 2020
 
-**Authors:
-* Muhammed Enes Toptaş @EnesToptas
-* Burak Yıldızöz @burak-yildizoz
-* Selman Berk Özkurt @SelmanB
+**Authors:**
+* Muhammed Enes Toptaş [@EnesToptas](https://github.com/EnesToptas)
+* Burak Yıldızöz [@burak-yildizoz](https://github.com/burak-yildizoz)
+* Selman Berk Özkurt [@SelmanB](https://github.com/SelmanB)
 
 
 # Requirements
