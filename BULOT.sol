@@ -14,6 +14,7 @@ contract BULOT
     mapping(uint => mapping(uint => bytes32)) hashes;     // database for hash of random numbers stored:   first index: lottery_no, second index: ticket_no
     mapping(uint => bytes32) lotteryRandom;               // list for the random numbers calculated for each week's lottery
     mapping(uint => mapping(uint=> address)) ticketowner; // (lotteryno, ticketno) => owner   // to authenticate withdraw // we could make ticket_no unique to avoid some extra storage
+    mapping(address => uint) lastBoughtTicket;            // owner => owner's last bought ticket no.  Set by buyTicket, read by getLastBoughtTicketNo
     mapping(uint => mapping(uint => bool)) notrevealed;   // (lotteryno, ticketno) => redeemable (reveal etmeyen adam sonradan ödül de alamaz)
     mapping(uint => mapping(uint => bool)) notclaimed;    // (lotteryno, ticketno) => remunerable
     mapping(uint =>uint)  ticketcount;                              // (lotteryno)=> ticketcount  (number of tickets sold for lotteryno). Updated by buyTicket
@@ -42,7 +43,7 @@ contract BULOT
         require(false, "This is an automated contract. Do not giveaway!");
     }
 
-    function buyTicket              (bytes32 hash_rnd_number)           payable public returns (uint ticket_no)
+    function buyTicket              (bytes32 hash_rnd_number)           payable public //returns (uint ticket_no)
     {
         // hash_rnd_number == keccak256(abi.encode(rnd_number))
         require(TL_BANK.transferFrom(msg.sender, address(this), 10)); //buna bir de exception handling lazım olabilir?
@@ -50,6 +51,7 @@ contract BULOT
         moneycollected[lottery_no] += PRICE;
         totalmoneycollected += PRICE;
         ticket_no = ticketcount[lottery_no]; //ticketcount is used here to avoid exception from getLastBoughtTicketNo when ticketcount==0
+        lastBoughtTicket[msg.sender] = ticket_no;
         ticketcount[lottery_no]++;
         hashes[lottery_no][ticket_no] = hash_rnd_number;
         ticketowner[lottery_no][ticket_no] = msg.sender;
@@ -97,8 +99,9 @@ contract BULOT
 
     function getLastBoughtTicketNo  (uint lottery_no)                   public view returns (uint)
     {
-        require(ticketcount[lottery_no] > 0, "No tickets bought yet.");
-        return ticketcount[lottery_no] - 1;
+        ticket_no=lastBoughtTicket[msg.sender];
+        require(ticketowner[lottery_no][ticket_no]==msg.sender,"No tickets bought yet.");
+        return ticket_no;
     }
 
     function getIthBoughtTicketNo   (uint i, uint lottery_no)           public view returns (uint)
