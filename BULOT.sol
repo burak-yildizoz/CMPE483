@@ -50,7 +50,7 @@ contract BULOT
         uint lottery_no = getCurrentLotteryNo();
         moneycollected[lottery_no] += PRICE;
         totalmoneycollected += PRICE;
-        ticket_no = ticketcount[lottery_no]; //ticketcount is used here to avoid exception from getLastBoughtTicketNo when ticketcount==0
+        uint ticket_no = ticketcount[lottery_no]; //ticketcount is used here to avoid exception from getLastBoughtTicketNo when ticketcount==0
         lastBoughtTicket[msg.sender] = ticket_no;
         ticketcount[lottery_no]++;
         hashes[lottery_no][ticket_no] = hash_rnd_number;
@@ -99,7 +99,7 @@ contract BULOT
 
     function getLastBoughtTicketNo  (uint lottery_no)                   public view returns (uint)
     {
-        ticket_no=lastBoughtTicket[msg.sender];
+        uint ticket_no=lastBoughtTicket[msg.sender];
         require(ticketowner[lottery_no][ticket_no]==msg.sender,"No tickets bought yet.");
         return ticket_no;
     }
