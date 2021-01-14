@@ -108,7 +108,7 @@ function withdrawPrizes(lotteryNo) {
 		winnerAccount = Object.keys(ticketsOfPeople).find(function (key){ticketsOfPeople[key] === winners[i][0]});
 		eth.defaultAccount = winnerAccount;
 		personal.unlockAccount(winnerAccount, '', 10);
-		bulotcontractwithdrawTicketPrize.sendTransaction(lotteryNo, winners[i][0]);
+		bulotcontract.withdrawTicketPrize.sendTransaction(lotteryNo, winners[i][0]);
 	}
 }
 
