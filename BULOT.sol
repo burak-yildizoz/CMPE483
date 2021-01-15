@@ -130,7 +130,7 @@ contract BULOT
         uint M = moneycollected[lottery_no];                                               //Number of tickets sold in that lottery will be used
         require(i > 0 && 2**i < M*2, "Invalid reward number");                           //Make sure there exists a reward i
         amount = (M / 2**i) + ((M / 2**(i-1)) % 2);                                     //The actual formula for reward of the i'th prize
-        ticket_no = uint(keccak256(abi.encode(lotteryRandom[lottery_no], i))) % M;      //This is the winner calculation logic. See documentation for details.
+        ticket_no = uint(keccak256(abi.encode(lotteryRandom[lottery_no], i))) % ticketcount[lottery_no];      //This is the winner calculation logic. See documentation for details.
     }
 
     function getCurrentLotteryNo    ()                                  public view returns (uint lottery_no)
