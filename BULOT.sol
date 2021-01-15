@@ -111,10 +111,11 @@ contract BULOT
     function checkIfTicketWon       (uint lottery_no, uint ticket_no)   public view returns (uint amount)
     {
         require(lottery_no < getCurrentLotteryNo() - 1, "Tickets are rewarded after reveal stage ends"); //Check if the final lottery random number is calculated ie. reveal stage is over.
-        uint last_ticket_no = getLastBoughtTicketNo(lottery_no);                                         //Abstract the logic even though it just returns number of tickets sold, to ensure robustness and abstraction. 
+        uint last_ticket_no = ticketcount[lottery_no]; 
         require(ticket_no <= last_ticket_no, "Ticket is not sold");                                      //Check if such a ticket exists at all. An arbitrary and high ticket number can be miscalculated to have won a prize otherwise.
+        uint M = moneycollected[lottery_no];
         amount=0;                                                                                        //Amount will be the sum of all prizes won 
-        for (uint i = 1; 2**i <= ticketcount[lottery_no]*2; i++)                                         //Sum for all prizes
+        for (uint i = 1; 2**i < M*2; i++)                                                                //Sum for all prizes
         {
             (uint ith_ticket_no, uint ith_amount) = getIthWinningTicket(i, lottery_no);
             if (ith_ticket_no == ticket_no){                                                             //Add only the prizes actually won by this ticket
@@ -126,8 +127,8 @@ contract BULOT
     function getIthWinningTicket    (uint i, uint lottery_no)           public view returns (uint ticket_no, uint amount)
     {
         require(lottery_no < getCurrentLotteryNo() - 1, "Tickets are rewarded after reveal stage ends");
-        uint M = ticketcount[lottery_no];                                               //Number of tickets sold in that lottery will be used
-        require(i > 0 && 2**i <= M, "Invalid reward number");                           //Make sure there exists a reward i
+        uint M = moneycollected[lottery_no];                                               //Number of tickets sold in that lottery will be used
+        require(i > 0 && 2**i < M*2, "Invalid reward number");                           //Make sure there exists a reward i
         amount = (M / 2**i) + ((M / 2**(i-1)) % 2);                                     //The actual formula for reward of the i'th prize
         ticket_no = uint(keccak256(abi.encode(lotteryRandom[lottery_no], i))) % M;      //This is the winner calculation logic. See documentation for details.
     }
