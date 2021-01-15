@@ -3,7 +3,7 @@ loadScript("bulottokenabi.js")
 
 // change this to the address you deployed with web3 provider in remix
 erc20address = "0xFb31ECf760AcFdABB1b57f9C16C90890b7029dF8"
-bulotaddress = "0x84Fd8B0B486e690733A422c10b21d04e5792A656"
+bulotaddress = "0xBF99e7769aC97B366C5559c334D946C578090d88"
 
 erc20contract = web3.eth.contract(erc20tokenabi).at(erc20address);
 bulotcontract = web3.eth.contract(bulottokenabi).at(bulotaddress);
@@ -91,7 +91,7 @@ function getMoneyCollected(lotteryNo) {
 }
 
 function getWinningTickets(moneyCollected, lotteryNo) {
-    howManyDidWin = Math.ceil(Math.log(moneyCollected));
+    howManyDidWin = Math.ceil(Math.log(moneyCollected)/Math.log(2));
     winners = [];
 
     for (i=1; i <= howManyDidWin; i++) {
