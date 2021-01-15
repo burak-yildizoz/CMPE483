@@ -115,13 +115,14 @@ contract BULOT
         require(lottery_no < getCurrentLotteryNo() - 1, "Tickets are rewarded after reveal stage ends");
         uint last_ticket_no = getLastBoughtTicketNo(lottery_no);
         require(ticket_no <= last_ticket_no, "Ticket is not sold");
+        amount=0;
         for (uint i = 1; 2**i <= ticketcount[lottery_no]*2; i++)
         {
             (uint ith_ticket_no, uint ith_amount) = getIthWinningTicket(i, lottery_no);
-            if (ith_ticket_no == ticket_no)
-                return ith_amount;
+            if (ith_ticket_no == ticket_no){
+                amount+=ith_amount;
+            }
         }
-        return 0;
     }
 
     function getIthWinningTicket    (uint i, uint lottery_no)           public view returns (uint ticket_no, uint amount)
