@@ -145,6 +145,10 @@ contract BULOT
         // TODO: award the remaining money from the last week that were not revealed ?
         return moneycollected[lottery_no];
     }
+    
+    function getHash                (uint rnd_numer)                    public view returns (uint256){
+        return keccak256(abi.encode(rnd_number));
+    }
 }
 
 /*************HOCAYA SORULACAK SORULAR:***************
