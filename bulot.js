@@ -2,8 +2,8 @@ loadScript("erc20tokenabi.js")
 loadScript("bulottokenabi.js")
 
 // change this to the address you deployed with web3 provider in remix
-erc20address = "0x6B24b35FE962A2CaC9304b4DBbD4808540FaE259"
-bulotaddress = "0x1dbf5933AFC496D7E07C05d6538899372628De07"
+erc20address = "0x68F4A697De25A8Aa688fC582BE671571c4F40cB1"
+bulotaddress = "0xf8e81D47203A594245E36C48e151709F0C19fBe8"
 
 erc20contract = web3.eth.contract(erc20tokenabi).at(erc20address);
 bulotcontract = web3.eth.contract(bulottokenabi).at(bulotaddress);
@@ -50,14 +50,15 @@ function buyTickets(howmany) {
     for (i=0; i< howmany; i++) {
         eth.defaultAccount=eth.accounts[i];
         web3.personal.unlockAccount(eth.accounts[i],'',10);
-        bulotcontract.buyTicket.sendTransaction(hash((i*3).toString()));
+        bulotcontract.buyTicket.sendTransaction(hash(i*3));
+        sleep(5000);
         thisTicketNo = getLastBoughtTicketNo(curentLotteryNo);
         ticketsOfPeople[eth.accounts[i]] = thisTicketNo;
     }
 }
 
 function hash(input) {
-    return web3.sha3(input);
+    return bulotcontract.getHash.call(input);
 }
 
 function sleep( sleepDuration ){
@@ -115,18 +116,18 @@ function withdrawPrizes(lotteryNo) {
 // TEST BY COMMENTING OUT BELOW CALLS
 // AND CALLING loadScript("bulot.js") IN GETH CONSOLE
 
-createAccounts(5);
-lotteryNo = getCurrentLotteryNo();
-console.log("Lottery no: " + lotteryNo)
-givePeopleMoneyToBuyTickets(5);
-giveAllowance(5);
-buyTickets(5);
-ithTicketNo = bulotcontract.getIthBoughtTicketNo.call(3, lotteryNo);
-moneyCollected = getMoneyCollected(lotteryNo);
-sleep(600000);
-reveal(5);
-sleep(600000);
-nextLotteryNo = getCurrentLotteryNo();
-if(nextLotteryNo == lotteryNo + 1) console.log("next week"); else console.log("not working");
-winners = getWinningTickets(moneyCollected, lotteryNo);
-withdrawPrizes(lotteryNo, winners);
+// createAccounts(5);
+// lotteryNo = getCurrentLotteryNo();
+// console.log("Lottery no: " + lotteryNo)
+// givePeopleMoneyToBuyTickets(5);
+// giveAllowance(5);
+// buyTickets(5);
+// ithTicketNo = bulotcontract.getIthBoughtTicketNo.call(3, lotteryNo);
+// moneyCollected = getMoneyCollected(lotteryNo);
+// sleep(600000);
+// reveal(5);
+// sleep(600000);
+// nextLotteryNo = getCurrentLotteryNo();
+// if(nextLotteryNo == lotteryNo + 1) console.log("next week"); else console.log("not working");
+// winners = getWinningTickets(moneyCollected, lotteryNo);
+// withdrawPrizes(lotteryNo, winners);
