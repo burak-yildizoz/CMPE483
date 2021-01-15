@@ -146,7 +146,7 @@ contract BULOT
         return moneycollected[lottery_no];
     }
     
-    function getHash                (uint rnd_numer)                    external pure returns (uint256){
+    function getHash                (uint rnd_number)                    external pure returns (uint256){
         return keccak256(abi.encode(rnd_number));
     }
 }
