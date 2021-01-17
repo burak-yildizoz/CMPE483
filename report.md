@@ -203,4 +203,4 @@ asd | 345
 
 We used remix.ethereum.org to deploy and then test the contract. First we deploy an IERC20 contract, for that we used the code our instructor shared via Piazza. Then we give that contract's address to BULOT contract's constructor and deploy it.
 
-To test we created bulot.js, and implemented some auxiliary functions that called our contract's functions. In this test, we first create accounts if we don't have already.
+To test we created bulot.js, and implemented some auxiliary functions that called our contract's functions. In this test, we first create accounts if we don't have already. WIP more to be done
