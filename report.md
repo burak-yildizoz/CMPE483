@@ -184,12 +184,14 @@ This is to be used by the clients, particularly our tester code, without spendin
 
 ## Miscellaneous Functions
 * `constructor (address TL_contract) public`
-
+This is the constructor. The argument given is the address to the previously deployed ERC20 contract tokens which are desired to be used for buying lottery tickets and receiving rewards.
 
 * `fallback () external`
-
+Fallback function. Is left empty.
 
 * `receive () external payable`
+Payable receive function. Reverts with warning string.
+
 
 
 ## Gas Usages
