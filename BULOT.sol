@@ -41,7 +41,7 @@ contract BULOT
         require(false, "This is an automated contract. Do not giveaway!");
     }
 
-    function buyTicket              (bytes32 hash_rnd_number)           payable public //returns (uint ticket_no)
+    function buyTicket              (bytes32 hash_rnd_number)           public //returns (uint ticket_no)
     {
         require(TL_BANK.transferFrom(msg.sender, address(this), PRICE)); //First of all, make sure the cost is received to avout reentrance attacks 
         uint lottery_no = getCurrentLotteryNo();                         //View function is used to get the date instead of calculating to preserve abstraction
