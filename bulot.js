@@ -10,6 +10,7 @@ bulotcontract = web3.eth.contract(bulottokenabi).at(bulotaddress);
 
 ticketsOfPeople = {}
 
+//creates accounts
 function createAccounts(howmany) {
     var numacc = eth.accounts.length - 1
     console.log("There are " + numacc + " accounts")
@@ -30,6 +31,7 @@ function createAccounts(howmany) {
     }
 }
 
+//gives tl tokens to other accounts
 function givePeopleMoneyToBuyTickets(howmany) {
     eth.defaultAccount = eth.accounts[0];
     for (i=1; i< howmany; i++) {
@@ -37,6 +39,7 @@ function givePeopleMoneyToBuyTickets(howmany) {
     }
 }
 
+//allows bulot to use transferFrom
 function giveAllowance(howmany) {
     for (i=0; i< howmany; i++) {
         eth.defaultAccount=eth.accounts[i];
@@ -45,6 +48,7 @@ function giveAllowance(howmany) {
     }
 }
 
+//buys tickets for accounts
 function buyTickets(howmany) {
 	curentLotteryNo = getCurrentLotteryNo();
     for (i=0; i< howmany; i++) {
@@ -57,15 +61,18 @@ function buyTickets(howmany) {
     }
 }
 
+//gets hash
 function hash(input) {
     return bulotcontract.getHash.call(input);
 }
 
+//sleeps for a week (minute)
 function sleep( sleepDuration ){
     var now = new Date().getTime();
     while(new Date().getTime() < now + sleepDuration){} 
 }
 
+//reveals numbers
 function reveal(howmany) {
     for (i=0; i< howmany; i++) {
         eth.defaultAccount=eth.accounts[i];
@@ -73,6 +80,7 @@ function reveal(howmany) {
         bulotcontract.revealRndNumber.sendTransaction(ticketsOfPeople[eth.accounts[i]], i*3);
     }
 }
+
 
 function getCurrentLotteryNo() {
     return bulotcontract.getCurrentLotteryNo.call();
@@ -90,6 +98,7 @@ function getMoneyCollected(lotteryNo) {
     return bulotcontract.getMoneyCollected.call(lotteryNo);
 }
 
+//adds winning tickets and amounts to a array
 function getWinningTickets(moneyCollected, lotteryNo) {
     howManyDidWin = Math.ceil(Math.log(moneyCollected)/Math.log(2));
     winners = [];
@@ -104,7 +113,7 @@ function getWinningTickets(moneyCollected, lotteryNo) {
     return winners;
 }
 
-
+//withdraws winning tickets
 function withdrawPrizes(lotteryNo) {
 	for (i=0; i <= winners.length; i++){
 		winnerAccount = Object.keys(ticketsOfPeople).find(function (key){ticketsOfPeople[key] === winners[i][0]});
