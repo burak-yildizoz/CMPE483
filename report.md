@@ -196,7 +196,16 @@ This is to be used by the clients, particularly our tester code, without spendin
 
 Function | Gas Usage
 -------- | --------
-asd | 345
+getCurrentLotteryNo | execution: 273
+getMoneyCollected | execution: 1178
+getIthBoughtTicketNo | execution: 1421
+getIthWinningTicket | execution: infinite
+getLastBoughtTicketNo | execution: 2313
+checkIfTicketWon | execution: infinite
+buyTicket | execution: infinite
+revealRndNumber | execution: infinite
+withdrawTicketPrize | execution: infinite
+
 
 
 # Deployment and Testing
