@@ -44,15 +44,25 @@ It should be noted that in this particular implementation, the weeks begin at th
 
 ## Interface
 Aformementioned actions of buying a ticket, revealing the number number and withdrawing the prize are accomplished using solidity methods with following footprints:
+
 `function buyTicket (bytes32 hash_rnd_number) payable public`
+
 `function revealRndNumber (uint ticket_no, uint rnd_number) public`
+
 `function withdrawTicketPrize (uint lottery_no, uint ticket_no)   public`
+
 In addition, users need to retrieve some information from the lottery system like the ticket number of a ticket they just bought. For that purpose, they can use the view functions with these footprints:
+
 `function getLastBoughtTicketNo(uint lottery_no) public view returns(uint)`
+
 `function getIthBoughtTicketNo(uint i,uint lottery_no) public view returns(uint)`
+
 `function checkIfTicketWon(uint lottery_no, uint ticket_no) public view returns (uint amount)`
+
 `function getIthWinningTicket(uint i, uint lottery_no) public view returns (uint ticket_no,uint amount)`
+
 `function getCurrentLotteryNo() public view returns (uint lottery_no)`
+
 `function getMoneyCollected(uint lottery_no) public view returns (uint amount)`
 
 
