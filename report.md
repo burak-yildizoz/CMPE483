@@ -199,12 +199,12 @@ Function | Gas Usage
 getCurrentLotteryNo | execution: 273
 getMoneyCollected | execution: 1178
 getIthBoughtTicketNo | execution: 1421
-getIthWinningTicket | execution: infinite
+getIthWinningTicket | execution: 3677 
 getLastBoughtTicketNo | execution: 2313
-checkIfTicketWon | execution: infinite
+checkIfTicketWon | execution: 20118 
 buyTicket | execution: 167352
-revealRndNumber | execution: infinite
-withdrawTicketPrize | execution: infinite
+revealRndNumber | execution: 30736 
+withdrawTicketPrize | execution: 88427 
 
 
 
