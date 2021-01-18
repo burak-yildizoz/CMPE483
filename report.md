@@ -202,7 +202,7 @@ getIthBoughtTicketNo | execution: 1421
 getIthWinningTicket | execution: infinite
 getLastBoughtTicketNo | execution: 2313
 checkIfTicketWon | execution: infinite
-buyTicket | execution: infinite
+buyTicket | execution: 167352
 revealRndNumber | execution: infinite
 withdrawTicketPrize | execution: infinite
 
