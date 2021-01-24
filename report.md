@@ -5,11 +5,16 @@
 * Burak Yıldızöz [@burak-yildizoz](https://github.com/burak-yildizoz)
 * Selman Berk Özkurt [@SelmanB](https://github.com/SelmanB)
 
+---
+
 # Requirements
 This is one of the projects for the course CMPE483 of the Boğaziçi University. The requirements and the interface are defined by the instructor of the course, Prof. Can Özturan.
 
 The back end code is written in Solidity language and is intended for deployment to any Ethereum-based network. Some web3 programs are also supplied as reference front ends and for testing the functionality.
 
+See **Deployment and Testing** section at the end of this report for further instructions.
+
+---
 
 ## Tickets and Rewards
 Some virtual lottery tickets are bought with a fixed price of 10 ERC20 tokens. Which token is used depends on the specific deployment of the lottery system. We assume during testing that it is a Turkish Lira token.
@@ -31,7 +36,7 @@ Prize Number | Prize Value
 
 
 ## Lottery Rounds
-Lottery is held weekly. Every week's lottery has an index. The current index can be freely learnt using `getCurrentLotteryNo()` method. 
+Lottery is held weekly. Every week's lottery has an index. The current index can be freely learnt using `getCurrentLotteryNo()` method.
 
 Every such lottery has two stages that take one week each. In the first phase, users can buy lottery ticket by depositing the necessary amount of tokens. In addition, they must pick a random number to be used for the fair lottery logic. While buying the ticket, they must commit to this random number by supplying its SHA3 hash. They can keep their random number secret until all tickets are sold.
 
@@ -65,11 +70,12 @@ In addition, users need to retrieve some information from the lottery system lik
 
 `function getMoneyCollected(uint lottery_no) public view returns (uint amount)`
 
+---
 
 # Algorithm
 
 ## Lottery Logic
-All the winning tickets are determined using entropy in a single master 256-bit random number for each lottery. This number will be referred to as the *lottery random number*. The lottery random number is used to calculate the winning ticket number for i'th prize for the lottery of that week. 
+All the winning tickets are determined using entropy in a single master 256-bit random number for each lottery. This number will be referred to as the *lottery random number*. The lottery random number is used to calculate the winning ticket number for i'th prize for the lottery of that week.
 
 A ticket can win multiple prizes, making the lottery more exciting. A ticket can be assigned a reward even if the ticket's random number was not revealed. That amount will not be recoverable by the ticket owner and will be a profit for the house. It could be implemented in some other way allowing the prizes to be assigned only to the tickets that have been revealed. When it is done so, expected net revenue will become higher than zero for participants that revealed their random numbers in case some participants do not. This kind of an implementation may encourage the lottery participants to try to avoid revelations of each other, creating a potential real-life security threat. In larger stakes owned by smaller number of entities, this may even include serious criminal activities.
 
@@ -92,26 +98,28 @@ Random numbers from ticket buyers is combined to yield a master 256-bit random n
 Lottery participants are each asked to commit a secret random number by submitting its hash and then to reveal them to be used for generating the lottery random number. The method used to aggregate these random numbers needs to be free of any possible manipulation exploiting any statistical relation between any submitted number and the final lottery random number. We ensured there is no such vulnerability by updating the lottery random number as the cryptographically hash of its concatenation with the revealed random number. After all such random number revelations upadting the lottery random number, the lottery random number at the end of the revelation period is used for calculating prizes after the revelation period.
 
 ### Trust and Incentive Considerations
-Using secure hash functions ensures that even a single random number submitted to this aggregation ensures sufficient randomness in the resulting lottery random number. Ability of all the participants to include randomness that is impossible to exploit by other parties assures senders of random number on the randomness of the resulting number. Revealing the number is incentivized by making it compulsory in order to receive a reward. Cost of revealing a random number is a lot less than the expected return from a fair lottery. 
+Using secure hash functions ensures that even a single random number submitted to this aggregation ensures sufficient randomness in the resulting lottery random number. Ability of all the participants to include randomness that is impossible to exploit by other parties assures senders of random number on the randomness of the resulting number. Revealing the number is incentivized by making it compulsory in order to receive a reward. Cost of revealing a random number is a lot less than the expected return from a fair lottery.
 
 In the scenario using only the supplied random numbers to generate the lottery random number, the last entity to reveal a random number has an advantage to alter the result of the lottery for its benefit. This is because that entity knows what the lottery random number, therefore the whole outcome of the lottery will be, and has a choice regarding whether to reveal its random number or not. The cost of not revealing a random number has the cost of losing any potential reward for its ticket. However, there could be another benefit to the revealer with the alternative lottery random number through other tickets. This opportunity to partially decide the outcome reduces the legitimacy and will incentivize being the last revealer, creating network congestions in the end of the reveal period.
 
 This problem can be solved by including an independent entropy source to the random number aggregation *after* all the revelations were made. The best candidate we can imagine is the hash of the first block mined following the reveal period. **This is not implemented in this version**. The downside of this approach is that it may slightly incentivize mining for entities willing to affect the outcomes. However, this is computationally very difficult and even if it is not, it is beneficial to incentivize mining for the overall functioning of the network.
 
 ### Ability to Alter the Result
-Because a cryptographically secure hash function is used at every step of generating the lottery random number, it is extremely difficult to 
+Because a cryptographically secure hash function is used at every step of generating the lottery random number, it is extremely difficult to
 
 The contribution by all participants to lottery random number generation is previously fixed by their commitments of random number hashes to the blockchain. Only decision of the participants potentially affecting the outcome is the decision of whether to reveal the random number and when. The implications of this is discussed in detail in the previous section.
- 
+
 
 ### Computation Cost Burden
 Every random number commit (in `buyTicket`) and reveal (in `revealRndNumber`) have the same gas cost and this cost is inflicted on all participants equally.
 
 ## Time Management
 
-Calls to the core functions for buying and revealing some random numbers for a given lottery is related to the time these functions are called, which determines the relevant lottery. 
+Calls to the core functions for buying and revealing some random numbers for a given lottery is related to the time these functions are called, which determines the relevant lottery.
 
 The current week index can be learnt using `getCurrentLotteryNo()` view function without spending any gas. The lottery week indices are determined simply by integer division of the Unix Epoch of the last block mined(`block.timestamp`) by number of seconds in a week. This results in lottery rounds starting at around midnight between every wednesday and thursday UTC. The index of a lottery is given by the week number of the ticket buying stage calculated this way.
+
+---
 
 # Code Documentation
 
@@ -148,7 +156,7 @@ These are also possible failsafe accounting variables similar to the `moneycolle
 ## Core Functions
 
 * `function buyTicket (bytes32 hash_rnd_number) payable public`
-Implements the functionality for buying ticket as shouşd be done by the participants during the first week of a lottery. It tries to receive necessary amount of ERC20 tokens 
+Implements the functionality for buying ticket as shouşd be done by the participants during the first week of a lottery. It tries to receive necessary amount of ERC20 tokens
 
 
 * `function revealRndNumber (uint ticket_no, uint rnd_number) public`
@@ -211,17 +219,42 @@ Function | Gas Usage
 getCurrentLotteryNo | execution: 273
 getMoneyCollected | execution: 1178
 getIthBoughtTicketNo | execution: 1421
-getIthWinningTicket | execution: 3677 
+getIthWinningTicket | execution: 3677
 getLastBoughtTicketNo | execution: 2313
-checkIfTicketWon | execution: 20118 
+checkIfTicketWon | execution: 20118
 buyTicket | execution: 167352
-revealRndNumber | execution: 30736 
-withdrawTicketPrize | execution: 88427 
+revealRndNumber | execution: 30736
+withdrawTicketPrize | execution: 88427
 
-
+---
 
 # Deployment and Testing
 
 We used remix.ethereum.org to deploy and then test the contract. First we deploy an IERC20 contract, for that we used the code our instructor shared via Piazza. Then we give that contract's address to BULOT contract's constructor and deploy it.
 
 To test we created bulot.js, and implemented some auxiliary functions that called our contract's functions. In this test, we first create accounts if we don't have already. Then we send these accounts TL tokens, and approve our BULOT smart contract to make transfers on behalf of those accounts. Then we buy ticket and wait, normally this wait would be one week, but since this is merely a test and we have a limited time, we changed the week interval to a minute on the smart contract's code, so we wait a minute and then we reveal the numbers. After that reveal, we again wait another minute for this reveal stage to end, and when it ends, we call various functions of BULOT smart contract, to see whether they work as intended. Finally, we withdraw the money.
+
+### Test locally
+
+- Download and install [Geth](https://geth.ethereum.org/downloads/).
+- Create a folder named `test-chain-dir` inside Geth directory.
+- Run the following command inside Geth directory each time to start Geth.
+
+    $ geth --datadir test-chain-dir --dev --rpccorsdomain "https://remix.ethereum.org,http://remix.ethereum.org" --nodiscover --ipcpath geth.ipc --networkid 1234 console --rpc --allow-insecure-unlock
+
+- Deploy Solidity code from [Remix](https://remix.ethereum.org/) using Web3 Provider environment.
+  - Deploy EIP20 contract with the default account.
+    - `_INITIALAMOUNT`: 1000000
+    - `_TOKENNAME`: KayyumCoin
+    - `_DECIMALUNITS`: 2
+    - `_TOKENSYMBOL`: TL
+  - Copy the address of deployed EIP20 contract.
+  - Deploy BULOT contract again with the default contract. **Note:** Since this is for test purposes, `currentWeek` function should be changed to increment say every hour before deployment. Do not lower it too much as `block.timestamp` changes approximately every 15 minutes.
+    - `TL_BANK`: *copied address*
+- Now that the bank (EIP20) and the lottery (BULOT) are deployed, copy and paste their addresses to `addresses.js`.
+- Load the code from Geth.
+
+    \> loadScript("bulot.js")
+
+- Test the commented functions individually.
+  - If you get a result from `getCurrentLotteryNo()` other than 0, then you should check whether Remix environment is Web3 Provider and the address of BULOT contract is correct.

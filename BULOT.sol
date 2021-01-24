@@ -1,4 +1,4 @@
-pragma solidity >=0.6.0 <0.7.0;
+pragma solidity >=0.7.0 <0.8.0;
 // SPDX-License-Identifier: AGPL-3.0-only
 
 import "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-contracts/master/contracts/token/ERC20/IERC20.sol";
@@ -28,7 +28,7 @@ contract BULOT
     // code                                                                       //
     ////////////////////////////////////////////////////////////////////////////////
 
-    constructor                     (address TL_contract)               public
+    constructor                     (address TL_contract)
     {
         TL_BANK = IERC20(TL_contract);
     }
@@ -43,7 +43,7 @@ contract BULOT
 
     function buyTicket              (bytes32 hash_rnd_number)           public //returns (uint ticket_no)
     {
-        require(TL_BANK.transferFrom(msg.sender, address(this), PRICE)); //First of all, make sure the cost is received to avout reentrance attacks 
+        require(TL_BANK.transferFrom(msg.sender, address(this), PRICE)); //First of all, make sure the cost is received to avout reentrance attacks
         uint lottery_no = getCurrentLotteryNo();                         //View function is used to get the date instead of calculating to preserve abstraction
         moneycollected[lottery_no] += PRICE;                             //Update failsafe accounting variables
         totalmoneycollected += PRICE;                                    //Update failsafe accounting variables
@@ -59,7 +59,7 @@ contract BULOT
     function revealRndNumber        (uint ticket_no, uint rnd_number)    public
     {
         uint last_lottery_no = getCurrentLotteryNo() - 1;
-        require(ticketowner[last_lottery_no][ticket_no] == msg.sender, "Only the ticket owner can perform this operation");     //Authenticate the owner 
+        require(ticketowner[last_lottery_no][ticket_no] == msg.sender, "Only the ticket owner can perform this operation");     //Authenticate the owner
         require(notrevealed[last_lottery_no][ticket_no], "You have already revealed the ticket");                               //Avoid unnecessary redundant storage updates
         require(keccak256(abi.encode(rnd_number)) == hashes[last_lottery_no][ticket_no], "Your random number is not correct!"); //Authenticate the random number revealed using its previously supplied hash
         //We do not update anything before all checks are made
@@ -73,9 +73,9 @@ contract BULOT
         require(ticketowner[lottery_no][ticket_no] == msg.sender, "Only the ticket owner can claim reward");                     //Authenticate that entity willing to receive the price is who bought this ticket
         require(notrevealed[lottery_no][ticket_no] != true, "You did not reveal your random number. No rewards can be claimed!");
         require(notclaimed[lottery_no][ticket_no], "You have already claimed your reward");                                      //Check the eligibility to receive prize for this ticket. See documentation for details.
-        //We do not do state update or transfers before all checks are made to avoid reentrancy attack        
+        //We do not do state update or transfers before all checks are made to avoid reentrancy attack
         uint amount = checkIfTicketWon(lottery_no, ticket_no);                                                                   //The amount calculation logic is implemented *only* in that view function for code robustness and abstraction
-        require(amount > 0, "You didn't win this time");                                                                         //Do not continue 
+        require(amount > 0, "You didn't win this time");                                                                         //Do not continue
         notclaimed[lottery_no][ticket_no] = false;                                                                               //Disable ability of this ticket to do another withdraw to avoid reentrancy attacks
         require(TL_BANK.transfer(msg.sender, amount), "Transaction failed!");                                                    //
         moneyreturned[lottery_no] += amount;                                                                                     //Update auxiliary accounting records
@@ -88,7 +88,7 @@ contract BULOT
 
     function currentWeek            ()                                  private view returns (uint)
     {
-        return block.timestamp / (60*60*24*7);         //Divide Unix Epoch by the number of seconds per week. See documentation for details                                                         
+        return block.timestamp / 1 weeks;         //Divide Unix Epoch by the number of seconds per week. See documentation for details
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -98,7 +98,7 @@ contract BULOT
     function getLastBoughtTicketNo  (uint lottery_no)                   public view returns (uint)
     {
         uint ticket_no=lastBoughtTicket[msg.sender];                                        //The result was memoized, written by buyTicket. See documentation for details.
-        require(ticketowner[lottery_no][ticket_no]==msg.sender,"No tickets bought yet.");   //To avoid returning default storage value of 0 in case no tickets were bought 
+        require(ticketowner[lottery_no][ticket_no]==msg.sender,"No tickets bought yet.");   //To avoid returning default storage value of 0 in case no tickets were bought
         return ticket_no;
     }
 
@@ -111,10 +111,10 @@ contract BULOT
     function checkIfTicketWon       (uint lottery_no, uint ticket_no)   public view returns (uint amount)
     {
         require(lottery_no < getCurrentLotteryNo() - 1, "Tickets are rewarded after reveal stage ends"); //Check if the final lottery random number is calculated ie. reveal stage is over.
-        uint last_ticket_no = ticketcount[lottery_no]; 
+        uint last_ticket_no = ticketcount[lottery_no];
         require(ticket_no <= last_ticket_no, "Ticket is not sold");                                      //Check if such a ticket exists at all. An arbitrary and high ticket number can be miscalculated to have won a prize otherwise.
         uint M = moneycollected[lottery_no];
-        amount=0;                                                                                        //Amount will be the sum of all prizes won 
+        amount=0;                                                                                        //Amount will be the sum of all prizes won
         for (uint i = 1; 2**i < M*2; i++)                                                                //Sum for all prizes
         {
             (uint ith_ticket_no, uint ith_amount) = getIthWinningTicket(i, lottery_no);
@@ -142,7 +142,7 @@ contract BULOT
     {
         return moneycollected[lottery_no];                                              //Simply return the accounting function updated by buyTicket
     }
-    
+
     function getHash                (uint rnd_number)                   external pure returns (bytes32)
     {
         return keccak256(abi.encode(rnd_number));                                       //To be used for clients to make the exact hash algorithm compatible

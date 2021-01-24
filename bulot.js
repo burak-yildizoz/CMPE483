@@ -1,9 +1,6 @@
 loadScript("erc20tokenabi.js")
 loadScript("bulottokenabi.js")
-
-// change this to the address you deployed with web3 provider in remix
-erc20address = "0xFb31ECf760AcFdABB1b57f9C16C90890b7029dF8"
-bulotaddress = "0xBF99e7769aC97B366C5559c334D946C578090d88"
+loadScript("addresses.js")
 
 erc20contract = web3.eth.contract(erc20tokenabi).at(erc20address);
 bulotcontract = web3.eth.contract(bulottokenabi).at(bulotaddress);
@@ -69,7 +66,7 @@ function hash(input) {
 //sleeps for a week (minute)
 function sleep( sleepDuration ){
     var now = new Date().getTime();
-    while(new Date().getTime() < now + sleepDuration){} 
+    while(new Date().getTime() < now + sleepDuration){}
 }
 
 //reveals numbers
@@ -134,9 +131,9 @@ function withdrawPrizes(lotteryNo) {
 // buyTickets(5);
 // ithTicketNo = bulotcontract.getIthBoughtTicketNo.call(3, lotteryNo);
 // moneyCollected = getMoneyCollected(lotteryNo);
-// sleep(600000);
+// sleep(1000*60*60);
 // reveal(5);
-// sleep(600000);
+// sleep(1000*60*60);
 // nextLotteryNo = getCurrentLotteryNo();
 // if(nextLotteryNo == lotteryNo + 1) console.log("next week"); else console.log("not working");
 // winners = getWinningTickets(moneyCollected, lotteryNo);
