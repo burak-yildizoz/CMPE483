@@ -38,7 +38,7 @@ function givePeopleMoneyToBuyTickets(howmany) {
 
 //allows bulot to use transferFrom
 function giveAllowance(howmany) {
-    for (i=0; i< howmany; i++) {
+    for (i=1; i< howmany; i++) {
         eth.defaultAccount=eth.accounts[i];
         web3.personal.unlockAccount(eth.accounts[i],'',10)
         erc20contract.approve.sendTransaction(bulotaddress, 10);
@@ -48,11 +48,10 @@ function giveAllowance(howmany) {
 //buys tickets for accounts
 function buyTickets(howmany) {
 	curentLotteryNo = getCurrentLotteryNo();
-    for (i=0; i< howmany; i++) {
+    for (i=1; i< howmany; i++) {
         eth.defaultAccount=eth.accounts[i];
         web3.personal.unlockAccount(eth.accounts[i],'',10);
         bulotcontract.buyTicket.sendTransaction(hash(i*3));
-        sleep(5000);
         thisTicketNo = getLastBoughtTicketNo(curentLotteryNo);
         ticketsOfPeople[eth.accounts[i]] = thisTicketNo;
     }
@@ -71,7 +70,7 @@ function sleep( sleepDuration ){
 
 //reveals numbers
 function reveal(howmany) {
-    for (i=0; i< howmany; i++) {
+    for (i=1; i< howmany; i++) {
         eth.defaultAccount=eth.accounts[i];
         personal.unlockAccount(eth.accounts[i], '', 10);
         bulotcontract.revealRndNumber.sendTransaction(ticketsOfPeople[eth.accounts[i]], i*3);
@@ -112,8 +111,13 @@ function getWinningTickets(moneyCollected, lotteryNo) {
 
 //withdraws winning tickets
 function withdrawPrizes(lotteryNo) {
-	for (i=0; i <= winners.length; i++){
-		winnerAccount = Object.keys(ticketsOfPeople).find(function (key){ticketsOfPeople[key] === winners[i][0]});
+	for (i=0; i < winners.length; i++){
+    var ticketno = winners[i][0]
+    // It seems like the number in uint object is accessed via
+    // uintvar["c"]["0"]
+    // check by using Object.keys(uintvar)
+		winnerAccount = Object.keys(ticketsOfPeople).filter(function(key) { return ticketsOfPeople[key]["c"]["0"] === ticketno["c"]["0"] })[0];
+    if (winnerAccount === undefined) { continue; }
 		eth.defaultAccount = winnerAccount;
 		personal.unlockAccount(winnerAccount, '', 10);
 		bulotcontract.withdrawTicketPrize.sendTransaction(lotteryNo, winners[i][0]);
@@ -124,17 +128,20 @@ function withdrawPrizes(lotteryNo) {
 // AND CALLING loadScript("bulot.js") IN GETH CONSOLE
 
 // createAccounts(5);
+// givePeopleMoneyToBuyTickets(5);
 // lotteryNo = getCurrentLotteryNo();
 // console.log("Lottery no: " + lotteryNo)
-// givePeopleMoneyToBuyTickets(5);
 // giveAllowance(5);
 // buyTickets(5);
 // ithTicketNo = bulotcontract.getIthBoughtTicketNo.call(3, lotteryNo);
 // moneyCollected = getMoneyCollected(lotteryNo);
-// sleep(1000*60*60);
-// reveal(5);
-// sleep(1000*60*60);
+  // timing is important here
+  // to update block.timestamp, you can use givePeopleMoneyToBuyTickets
+// sleep(1000*60);
 // nextLotteryNo = getCurrentLotteryNo();
-// if(nextLotteryNo == lotteryNo + 1) console.log("next week"); else console.log("not working");
+  //  Object.keys(lotteryNo) -> Object.keys(lotteryNo["c"])
+// if(nextLotteryNo["c"]["0"] == lotteryNo["c"]["0"] + 1) console.log("next week"); else console.log("not working");
+// reveal(5);
+// sleep(1000*60);
 // winners = getWinningTickets(moneyCollected, lotteryNo);
 // withdrawPrizes(lotteryNo, winners);

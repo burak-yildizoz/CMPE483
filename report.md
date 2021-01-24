@@ -249,7 +249,7 @@ To test we created bulot.js, and implemented some auxiliary functions that calle
     - `_DECIMALUNITS`: 2
     - `_TOKENSYMBOL`: TL
   - Copy the address of deployed EIP20 contract.
-  - Deploy BULOT contract again with the default contract. **Note:** Since this is for test purposes, `currentWeek` function should be changed to increment say every hour before deployment. Do not lower it too much as `block.timestamp` changes approximately every 15 minutes.
+  - Deploy BULOT contract again with the default contract. **Note:** Since this is for test purposes, `currentWeek` function should be changed before deployment to increment say every 2 minutes. One can update `block.timestamp` by calling a function that changes the state, like `givePeopleMoneyToBuyTickets`.
     - `TL_BANK`: *copied address*
 - Now that the bank (EIP20) and the lottery (BULOT) are deployed, copy and paste their addresses to `addresses.js`.
 - Load the code from Geth.
@@ -258,3 +258,5 @@ To test we created bulot.js, and implemented some auxiliary functions that calle
 
 - Test the commented functions individually.
   - If you get a result from `getCurrentLotteryNo()` other than 0, then you should check whether Remix environment is Web3 Provider and the address of BULOT contract is correct.
+  - If `giveAllowance()` gives an error, then you probably did not deploy EIP20 contract or give its address to BULOT constructor correctly.
+  - **Important:** You need to make a transaction to update `block.timestamp` which is used by `getCurrentLotteryNo()`.
