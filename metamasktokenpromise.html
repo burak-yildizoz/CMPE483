@@ -30,23 +30,13 @@
   } ) ; 
   
   function gettokenbalance() {
-     var contract = new web3.eth.Contract(erc20tokenabi,"0x03207A15dE9B5A4d2BA11B2aa60Dc6272eA0b5BE");
+     var contract = new web3.eth.Contract(erc20tokenabi, "0x03207A15dE9B5A4d2BA11B2aa60Dc6272eA0b5BE");
      var fromaddr = document.getElementById("fromaddr").value ;
-     var mypromise = new Promise(function(resolve, reject) {
-        contract.balanceOf(fromaddr,function(error, response) {
-        //web3.eth.getBalance(fromaddr,function(error, response) {
-            if (error) { 
-                reject(error); 
-            } 
-            else { 
-                resolve(response); 
-            }
-         }) ; 
-     });
+     var mypromise = contract.methods.balanceOf(fromaddr).call();
      mypromise.then(
          function(result) {
            document.getElementById("status").innerHTML = "Balance:" + result ;  
-         }, 
+         },
          function(err) {
            console.log(err); 
      });

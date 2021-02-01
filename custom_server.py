@@ -28,10 +28,10 @@ def run_cp_kill(html_page, port):
     # create the server in a seperate thread
     threading.Thread(target=run_local_server, args=(port,), daemon=True).start()
     # wait for server to launch
-    time.sleep(0.5)
+    time.sleep(1)
     url = 'http://localhost:%d/%s' % (port, tmp_file)
     open_file(url)
-    time.sleep(2)
+    time.sleep(5)
     os.remove(tmp_file)
 
 def run_local_server(port = 8000):
