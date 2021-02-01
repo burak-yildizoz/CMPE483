@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Browser Transactions</title>
+  <script src="erc20tokenabi.js"> </script>
+  <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.min.js"></script> 
+  <script>
+ 
+  
+  window.addEventListener('load', async () => {
+    // Modern dapp browsers...
+    if (window.ethereum) {
+        window.web3 = new Web3(ethereum);
+        try {
+            // Request account access if needed
+            await ethereum.enable();
+        } catch (error) {
+            alert("Cannot access user ethereum account") ; 
+        }
+    }
+    // Legacy dapp browsers...
+    else if (window.web3) {
+        window.web3 = new Web3(web3.currentProvider);
+    }
+    // Non-dapp browsers...
+    else {
+        alert('Non-Ethereum browser detected. You should consider trying MetaMask!');
+    }
+    
+  } ) ; 
+  
+  function gettokenbalance() {
+     var contract = new web3.eth.Contract(erc20tokenabi,"0x03207A15dE9B5A4d2BA11B2aa60Dc6272eA0b5BE");
+     var fromaddr = document.getElementById("fromaddr").value ;
+     var mypromise = new Promise(function(resolve, reject) {
+        contract.balanceOf(fromaddr,function(error, response) {
+        //web3.eth.getBalance(fromaddr,function(error, response) {
+            if (error) { 
+                reject(error); 
+            } 
+            else { 
+                resolve(response); 
+            }
+         }) ; 
+     });
+     mypromise.then(
+         function(result) {
+           document.getElementById("status").innerHTML = "Balance:" + result ;  
+         }, 
+         function(err) {
+           console.log(err); 
+     });
+  } 
+    
+  </script>
+</head>
+<body>
+
+<h1>Browser Transactions</h1>
+
+<form>
+<p> Addr: <textarea id="fromaddr" rows="1" cols="100"></textarea> </p>
+</form>
+<button onclick="gettokenbalance()">Get Token Balance</button>
+<p id="status"></p>
+
+</body>
+</html>
