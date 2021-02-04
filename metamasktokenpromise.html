@@ -27,24 +27,24 @@
         });
 
         function gettokenbalance() {
-	     var contaddr="0x0";
-             var contaddrlist = document.getElementsByName("token");
-             for (var i =0, size=contaddrlist.length; i<size;i++){
-                  if(contaddrlist[i].checked){
-                       contaddr=contaddrlist[i].value;
-                  }
-             }
-             var contract = new web3.eth.Contract(erc20tokenabi, contaddr);
-             var fromaddr = document.getElementById("fromaddr").value;
-             var mypromise = contract.methods.balanceOf(fromaddr).call();
-             mypromise.then(
-                 function(result) {
+            var contaddr="0x0";
+            var contaddrlist = document.getElementsByName("token");
+            for (var i=0, size=contaddrlist.length; i<size; i++) {
+                if(contaddrlist[i].checked) {
+                    contaddr=contaddrlist[i].value;
+                }
+            }
+            var contract = new web3.eth.Contract(erc20tokenabi, contaddr);
+            var fromaddr = document.getElementById("fromaddr").value;
+            var mypromise = contract.methods.balanceOf(fromaddr).call();
+            mypromise.then(
+                function(result) {
                     document.getElementById("status").innerHTML = "Balance:" + result;
-                 },
-                 function(err) {
+                },
+                function(err) {
                     console.log(err);
                 }
-             );
+            );
         }
     </script>
 </head>
@@ -52,12 +52,12 @@
 <body>
     <h1>Check Your Balances</h1>
     <form>
-        <p> Owner Address: <textarea id="fromaddr" rows="1" cols="100" placeholder="0x0000AaAaAa000000000000000000000000000000"></textarea> </p>
+        <p> Owner Address: <textarea id="fromaddr" rows="1" cols="100" placeholder="0x0123456789ABCDEF0123456789abcdef01234567"></textarea> </p>
         <p> Token:<br>
-	<input type="radio" id="token1" name="token" value=0x03207A15dE9B5A4d2BA11B2aa60Dc6272eA0b5BE>
-            <label for="token1" checked>BUCOIN</label><br>
-	<input type="radio" id="token2" name="token" value=0x12c25Bd781709166Fd24784eE7C03bFB93480699>
-            <label for="token2">Turkish Lira</label><br>
+            <input type="radio" id="token1" name="token" value=0x03207A15dE9B5A4d2BA11B2aa60Dc6272eA0b5BE>
+                <label for="token1" checked>BUCOIN</label><br>
+            <input type="radio" id="token2" name="token" value=0x12c25Bd781709166Fd24784eE7C03bFB93480699>
+                <label for="token2">Turkish Lira</label><br>
         </p>
     </form>
     <button onclick="gettokenbalance()">Get Token Balance</button>
