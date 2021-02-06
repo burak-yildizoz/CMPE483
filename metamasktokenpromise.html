@@ -27,6 +27,10 @@
             }
         });
 
+        function mark_text(text) {
+            return "<mark>" + text + "</mark>";
+        }
+
         function getERC20TokenAddr() {
             var contaddr = "0x0";
             var contaddrlist = document.getElementsByName("token");
@@ -49,7 +53,7 @@
             var mypromise = contract.methods.balanceOf(fromaddr).call();
             mypromise.then(
                 function(result) {
-                    document.getElementById("status_getTokenBalance").innerHTML = "Balance:" + result;
+                    document.getElementById("status_getTokenBalance").innerHTML = "Balance:" + mark_text(result);
                 },
                 function(err) {
                     console.log(err);
@@ -64,7 +68,7 @@
             var mypromise = contract.methods.getCurrentLotteryNo().call();
             mypromise.then(
                 function(result) {
-                    document.getElementById("status_getCurrentLotteryNo").innerHTML = "Current Lottery No: " + result;
+                    document.getElementById("status_getCurrentLotteryNo").innerHTML = "Current Lottery No: " + mark_text(result);
                     lotteryNo = result;
                 },
                 function(err) {
@@ -76,7 +80,7 @@
 
         async function test() {
             await getCurrentLotteryNo();
-            document.getElementById("status_test").innerHTML = "Test: " + lotteryNo;
+            document.getElementById("status_test").innerHTML = "Test: " + mark_text(lotteryNo);
         }
 
         var hashResult;
@@ -98,7 +102,7 @@
         async function displayHash() {
             var text = document.getElementById("text_hash").value;
             await hash(text);
-            document.getElementById("status_hash").innerHTML = "Hash of " + text + ": " + hashResult;
+            document.getElementById("status_hash").innerHTML = "Hash of " + text + ": " + mark_text(hashResult);
         }
 
     </script>
@@ -116,17 +120,18 @@
                 <label for="token2">Turkish Lira</label><br>
         </p>
     </form>
+    <button onclick="getTokenBalance()">Get Token Balance</button>
+    <p id="status_getTokenBalance"></p>
+
+    <p> Hash of your ticket: <textarea id="text_ticket" rows="1" cols="70" style="overflow:auto;resize:none"></textarea> </p>
 
     <button onclick="test()">Test</button>
     <p id="status_test"></p>
 
-    <button onclick="getTokenBalance()">Get Token Balance</button>
-    <p id="status_getTokenBalance"></p>
-
     <button onclick="getCurrentLotteryNo()">Get Current Week</button>
     <p id="status_getCurrentLotteryNo"></p>
 
-    <p> Number to be hashed: <textarea id="text_hash" rows="1" cols="44" style="overflow:auto;resize:none"
+    <p> Number to be hashed: <textarea id="text_hash" rows="1" cols="70" style="overflow:auto;resize:none"
       placeholder="0"></textarea> </p>
     <button onclick="displayHash()">Hash!</button> <p id="status_hash"></p>
 </body>
