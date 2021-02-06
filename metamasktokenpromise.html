@@ -39,17 +39,17 @@
         }
 
         function getBULOTAddr() {
-            return "0xd2f4902Af91Ef3D38dbA55a23a1120A5565B8B20";  // period: 5 minutes
+            return "0xd2f4902Af91Ef3D38dbA55a23a1120A5565B8B20";  // BUCOIN, period: 5 minutes
         }
 
-        function gettokenbalance() {
+        function getTokenBalance() {
             var contaddr = getERC20TokenAddr();
             var contract = new web3.eth.Contract(erc20tokenabi, contaddr);
             var fromaddr = document.getElementById("fromaddr").value;
             var mypromise = contract.methods.balanceOf(fromaddr).call();
             mypromise.then(
                 function(result) {
-                    document.getElementById("tokenstatus").innerHTML = "Balance:" + result;
+                    document.getElementById("status_getTokenBalance").innerHTML = "Balance:" + result;
                 },
                 function(err) {
                     console.log(err);
@@ -64,7 +64,7 @@
             var mypromise = contract.methods.getCurrentLotteryNo().call();
             mypromise.then(
                 function(result) {
-                    document.getElementById("weekstatus").innerHTML = "Current Lottery No: " + result;
+                    document.getElementById("status_getCurrentLotteryNo").innerHTML = "Current Lottery No: " + result;
                 },
                 function(err) {
                     console.log(err);
@@ -86,9 +86,9 @@
                 <label for="token2">Turkish Lira</label><br>
         </p>
     </form>
-    <button onclick="gettokenbalance()">Get Token Balance</button>
-    <p id="tokenstatus"></p>
+    <button onclick="getTokenBalance()">Get Token Balance</button>
+    <p id="status_getTokenBalance"></p>
     <button onclick="getCurrentLotteryNo()">Get Current Week</button>
-    <p id="weekstatus"></p>
+    <p id="status_getCurrentLotteryNo"></p>
 </body>
 </html>
