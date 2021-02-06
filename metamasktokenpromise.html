@@ -57,6 +57,7 @@
             );
         }
 
+        var lotteryNo = 0;
         function getCurrentLotteryNo() {
             var contaddr = getBULOTAddr();
             var contract = new web3.eth.Contract(bulottokenabi, contaddr);
@@ -65,11 +66,18 @@
             mypromise.then(
                 function(result) {
                     document.getElementById("status_getCurrentLotteryNo").innerHTML = "Current Lottery No: " + result;
+                    lotteryNo = result;
                 },
                 function(err) {
                     console.log(err);
                 }
             );
+            return mypromise;
+        }
+
+        async function test() {
+            await getCurrentLotteryNo();
+            document.getElementById("status_test").innerHTML = "Test: " + lotteryNo;
         }
 
     </script>
@@ -86,6 +94,8 @@
                 <label for="token2">Turkish Lira</label><br>
         </p>
     </form>
+    <button onclick="test()">Test</button>
+    <p id="status_test"></p>
     <button onclick="getTokenBalance()">Get Token Balance</button>
     <p id="status_getTokenBalance"></p>
     <button onclick="getCurrentLotteryNo()">Get Current Week</button>
