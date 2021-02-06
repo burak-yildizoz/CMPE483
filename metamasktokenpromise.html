@@ -45,7 +45,7 @@
         function getTokenBalance() {
             var contaddr = getERC20TokenAddr();
             var contract = new web3.eth.Contract(erc20tokenabi, contaddr);
-            var fromaddr = document.getElementById("fromaddr").value;
+            var fromaddr = document.getElementById("text_owner").value;
             var mypromise = contract.methods.balanceOf(fromaddr).call();
             mypromise.then(
                 function(result) {
@@ -61,7 +61,6 @@
         function getCurrentLotteryNo() {
             var contaddr = getBULOTAddr();
             var contract = new web3.eth.Contract(bulottokenabi, contaddr);
-            var fromaddr = document.getElementById("fromaddr").value;
             var mypromise = contract.methods.getCurrentLotteryNo().call();
             mypromise.then(
                 function(result) {
@@ -80,13 +79,36 @@
             document.getElementById("status_test").innerHTML = "Test: " + lotteryNo;
         }
 
+        var hashResult;
+        function hash(text) {
+            var contaddr = getBULOTAddr();
+            var contract = new web3.eth.Contract(bulottokenabi, contaddr);
+            var mypromise = contract.methods.getHash(text).call();
+            mypromise.then(
+                function(result) {
+                    hashResult = result;
+                },
+                function(err) {
+                    console.log(err);
+                }
+            );
+            return mypromise;
+        }
+
+        async function displayHash() {
+            var text = document.getElementById("text_hash").value;
+            await hash(text);
+            document.getElementById("status_hash").innerHTML = "Hash of " + text + ": " + hashResult;
+        }
+
     </script>
 </head>
 
 <body>
     <h1>Check Your Balances</h1>
     <form>
-        <p> Owner Address: <textarea id="fromaddr" rows="1" cols="100" placeholder="0x0123456789ABCDEF0123456789abcdef01234567"></textarea> </p>
+        <p> Owner Address: <textarea id="text_owner" rows="1" cols="44" style="overflow:auto;resize:none"
+          placeholder="0x0123456789ABCDEF0123456789abcdef01234567"></textarea> </p>
         <p> Token:<br>
             <input type="radio" id="token1" name="token" value=0x03207A15dE9B5A4d2BA11B2aa60Dc6272eA0b5BE>
                 <label for="token1" checked>BUCOIN</label><br>
@@ -94,11 +116,18 @@
                 <label for="token2">Turkish Lira</label><br>
         </p>
     </form>
+
     <button onclick="test()">Test</button>
     <p id="status_test"></p>
+
     <button onclick="getTokenBalance()">Get Token Balance</button>
     <p id="status_getTokenBalance"></p>
+
     <button onclick="getCurrentLotteryNo()">Get Current Week</button>
     <p id="status_getCurrentLotteryNo"></p>
+
+    <p> Number to be hashed: <textarea id="text_hash" rows="1" cols="44" style="overflow:auto;resize:none"
+      placeholder="0"></textarea> </p>
+    <button onclick="displayHash()">Hash!</button> <p id="status_hash"></p>
 </body>
 </html>
