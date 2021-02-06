@@ -42,7 +42,7 @@ contract BULOT
 
     function buyTicket              (bytes32 hash_rnd_number)           public //returns (uint ticket_no)
     {
-        require(TL_BANK.transferFrom(msg.sender, address(this), PRICE)); //First of all, make sure the cost is received to avout reentrance attacks
+        require(TL_BANK.transferFrom(msg.sender, address(this), PRICE), "Transaction failed in buyTicket"); //First of all, make sure the cost is received to avout reentrance attacks
         uint lottery_no = getCurrentLotteryNo();                         //View function is used to get the date instead of calculating to preserve abstraction
         moneycollected[lottery_no] += PRICE;                             //Update failsafe accounting variables
         totalmoneycollected += PRICE;                                    //Update failsafe accounting variables
@@ -139,6 +139,11 @@ contract BULOT
     function getMoneyCollected      (uint lottery_no)                   public view returns (uint amount)
     {
         return moneycollected[lottery_no];                                              //Simply return the accounting function updated by buyTicket
+    }
+
+    function getTicketPrice          ()                                 public pure returns (uint price)
+    {
+        return PRICE;
     }
 
     function getHash                (uint rnd_number)                   external pure returns (bytes32)

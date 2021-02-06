@@ -33,7 +33,7 @@ contract EIP20  {
     }
 
     function transfer(address _to, uint256 _value) public returns (bool success) {
-        require(balances[msg.sender] >= _value);
+        require(balances[msg.sender] >= _value, "Sender does not have enough funds");
         balances[msg.sender] -= _value;
         balances[_to] += _value;
         emit Transfer(msg.sender, _to, _value); //solhint-disable-line indent, no-unused-vars
@@ -42,7 +42,8 @@ contract EIP20  {
 
     function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
         uint256 vallowance = allowed[_from][msg.sender];
-        require(balances[_from] >= _value && vallowance >= _value);
+        require(balances[_from] >= _value, "Insufficient funds");
+        require(vallowance >= _value, "Requested fund amount exceeds allowed amount");
         balances[_to] += _value;
         balances[_from] -= _value;
         if (vallowance < MAX_UINT256) {

@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <title>Browser Transactions</title>
-    <script src="erc20tokenabi.js"> </script>
-    <script src="bulottokenabi.js"> </script>
+    <script src="erc20tokenabi.js?2"> </script>
+    <script src="bulottokenabi.js?2"> </script>
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.min.js"></script>
     <script>
         window.addEventListener('load', async () => {
@@ -43,14 +43,13 @@
         }
 
         function getBULOTAddr() {
-            return "0xd2f4902Af91Ef3D38dbA55a23a1120A5565B8B20";  // BUCOIN, period: 5 minutes
+            return "0x80078e8f6f2DEc1B80f2F4cf940acCcCCb6Fa8AF";  // KAYYUMCOIN, period: 5 minutes
         }
 
         function getTokenBalance() {
-            var contaddr = getERC20TokenAddr();
-            var contract = new web3.eth.Contract(erc20tokenabi, contaddr);
+            var ERC20contract = new web3.eth.Contract(erc20tokenabi, getERC20TokenAddr());
             var fromaddr = document.getElementById("text_owner").value;
-            var mypromise = contract.methods.balanceOf(fromaddr).call();
+            var mypromise = ERC20contract.methods.balanceOf(fromaddr).call();
             mypromise.then(
                 function(result) {
                     document.getElementById("status_getTokenBalance").innerHTML = "Balance:" + mark_text(result);
@@ -63,9 +62,8 @@
 
         var lotteryNo = 0;
         function getCurrentLotteryNo() {
-            var contaddr = getBULOTAddr();
-            var contract = new web3.eth.Contract(bulottokenabi, contaddr);
-            var mypromise = contract.methods.getCurrentLotteryNo().call();
+            var BULOTcontract = new web3.eth.Contract(bulottokenabi, getBULOTAddr());
+            var mypromise = BULOTcontract.methods.getCurrentLotteryNo().call();
             mypromise.then(
                 function(result) {
                     document.getElementById("status_getCurrentLotteryNo").innerHTML = "Current Lottery No: " + mark_text(result);
@@ -85,9 +83,8 @@
 
         var hashResult;
         function hash(text) {
-            var contaddr = getBULOTAddr();
-            var contract = new web3.eth.Contract(bulottokenabi, contaddr);
-            var mypromise = contract.methods.getHash(text).call();
+            var BULOTcontract = new web3.eth.Contract(bulottokenabi, getBULOTAddr());
+            var mypromise = BULOTcontract.methods.getHash(text).call();
             mypromise.then(
                 function(result) {
                     hashResult = result;
@@ -102,7 +99,58 @@
         async function displayHash() {
             var text = document.getElementById("text_hash").value;
             await hash(text);
-            document.getElementById("status_hash").innerHTML = "Hash of " + text + ": " + mark_text(hashResult);
+            document.getElementById("status_displayHash").innerHTML = "Hash of " + text + ": " + mark_text(hashResult);
+        }
+
+        var lastBoughtTicketNo;
+        async function getLastBoughtTicketNo() {
+            await getCurrentLotteryNo();
+            var BULOTcontract = new web3.eth.Contract(bulottokenabi, getBULOTAddr());
+            var mypromise = BULOTcontract.methods.getLastBoughtTicketNo(lotteryNo).call();
+            mypromise.then(
+                function(result) {
+                    lastBoughtTicketNo = result;
+                },
+                function(err) {
+                    console.log(err);
+                }
+            );
+            return mypromise;
+        }
+
+        var ticketPrice;
+        function getTicketPrice() {
+            var BULOTcontract = new web3.eth.Contract(bulottokenabi, getBULOTAddr());
+            var mypromise = BULOTcontract.methods.getTicketPrice().call();
+            mypromise.then(
+                function(result) {
+                    ticketPrice = result;
+                },
+                function(err) {
+                    console.log(err);
+                }
+            );
+            return mypromise;
+        }
+
+        async function buyTicket() {
+            var hash = document.getElementById("text_ticket").value;
+            var fromaddr = document.getElementById("text_owner").value;
+            var BULOTaddr = getBULOTAddr();
+            var ERC20contract = new web3.eth.Contract(erc20tokenabi, getERC20TokenAddr());
+            var BULOTcontract = new web3.eth.Contract(bulottokenabi, BULOTaddr);
+            await getTicketPrice();
+            await ERC20contract.methods.approve(BULOTaddr, ticketPrice).call({from:fromaddr});
+            var mypromise = BULOTcontract.methods.buyTicket(hash).send({from:fromaddr});
+            await getLastBoughtTicketNo();
+            mypromise.then(
+                function(result) {
+                    document.getElementById("status_buyTicket").innerHTML = "Bought ticket: " + mark_text(lastBoughtTicketNo) + " (lottery number: " + mark_text(lotteryNo) + ")";
+                },
+                function(err) {
+                    console.log(err);
+                }
+            );
         }
 
     </script>
@@ -118,12 +166,16 @@
                 <label for="token1" checked>BUCOIN</label><br>
             <input type="radio" id="token2" name="token" value=0x12c25Bd781709166Fd24784eE7C03bFB93480699>
                 <label for="token2">Turkish Lira</label><br>
+            <input type="radio" id="token3" name="token" value=0x9F2faBAC1274C2C0FaFE403C6F19ea019f70D908>
+                <label for="token3">KAYYUMCOIN</label><br>
         </p>
     </form>
     <button onclick="getTokenBalance()">Get Token Balance</button>
     <p id="status_getTokenBalance"></p>
 
     <p> Hash of your ticket: <textarea id="text_ticket" rows="1" cols="70" style="overflow:auto;resize:none"></textarea> </p>
+    <button onclick="buyTicket()">Buy Ticket</button>
+    <p id="status_buyTicket"></p>
 
     <button onclick="test()">Test</button>
     <p id="status_test"></p>
@@ -133,6 +185,7 @@
 
     <p> Number to be hashed: <textarea id="text_hash" rows="1" cols="70" style="overflow:auto;resize:none"
       placeholder="0"></textarea> </p>
-    <button onclick="displayHash()">Hash!</button> <p id="status_hash"></p>
+    <button onclick="displayHash()">Hash!</button>
+    <p id="status_displayHash"></p>
 </body>
 </html>

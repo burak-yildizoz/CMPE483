@@ -1,4 +1,35 @@
-bulottokenabi = [
+var bulottokenabi = [
+	{
+		"inputs": [
+			{
+				"internalType": "bytes32",
+				"name": "hash_rnd_number",
+				"type": "bytes32"
+			}
+		],
+		"name": "buyTicket",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "ticket_no",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "rnd_number",
+				"type": "uint256"
+			}
+		],
+		"name": "revealRndNumber",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
 	{
 		"inputs": [
 			{
@@ -17,15 +48,24 @@ bulottokenabi = [
 	{
 		"inputs": [
 			{
-				"internalType": "bytes32",
-				"name": "hash_rnd_number",
-				"type": "bytes32"
+				"internalType": "uint256",
+				"name": "lottery_no",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "ticket_no",
+				"type": "uint256"
 			}
 		],
-		"name": "buyTicket",
+		"name": "withdrawTicketPrize",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
 	},
 	{
 		"inputs": [
@@ -175,43 +215,16 @@ bulottokenabi = [
 		"type": "function"
 	},
 	{
-		"inputs": [
+		"inputs": [],
+		"name": "getTicketPrice",
+		"outputs": [
 			{
 				"internalType": "uint256",
-				"name": "ticket_no",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "rnd_number",
+				"name": "price",
 				"type": "uint256"
 			}
 		],
-		"name": "revealRndNumber",
-		"outputs": [],
-		"stateMutability": "nonpayable",
+		"stateMutability": "pure",
 		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "lottery_no",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "ticket_no",
-				"type": "uint256"
-			}
-		],
-		"name": "withdrawTicketPrize",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"stateMutability": "payable",
-		"type": "receive"
 	}
 ]
