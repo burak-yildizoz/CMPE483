@@ -3,6 +3,7 @@
 <head>
     <title>Browser Transactions</title>
     <script src="erc20tokenabi.js"> </script>
+    <script src="bulottokenabi.js"> </script>
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.min.js"></script>
     <script>
         window.addEventListener('load', async () => {
@@ -26,26 +27,51 @@
             }
         });
 
-        function gettokenbalance() {
-            var contaddr="0x0";
+        function getERC20TokenAddr() {
+            var contaddr = "0x0";
             var contaddrlist = document.getElementsByName("token");
             for (var i=0, size=contaddrlist.length; i<size; i++) {
                 if(contaddrlist[i].checked) {
-                    contaddr=contaddrlist[i].value;
+                    contaddr = contaddrlist[i].value;
                 }
             }
+            return contaddr;
+        }
+
+        function getBULOTAddr() {
+            return "0xd2f4902Af91Ef3D38dbA55a23a1120A5565B8B20";  // period: 5 minutes
+        }
+
+        function gettokenbalance() {
+            var contaddr = getERC20TokenAddr();
             var contract = new web3.eth.Contract(erc20tokenabi, contaddr);
             var fromaddr = document.getElementById("fromaddr").value;
             var mypromise = contract.methods.balanceOf(fromaddr).call();
             mypromise.then(
                 function(result) {
-                    document.getElementById("status").innerHTML = "Balance:" + result;
+                    document.getElementById("tokenstatus").innerHTML = "Balance:" + result;
                 },
                 function(err) {
                     console.log(err);
                 }
             );
         }
+
+        function getCurrentLotteryNo() {
+            var contaddr = getBULOTAddr();
+            var contract = new web3.eth.Contract(bulottokenabi, contaddr);
+            var fromaddr = document.getElementById("fromaddr").value;
+            var mypromise = contract.methods.getCurrentLotteryNo().call();
+            mypromise.then(
+                function(result) {
+                    document.getElementById("weekstatus").innerHTML = "Current Lottery No: " + result;
+                },
+                function(err) {
+                    console.log(err);
+                }
+            );
+        }
+
     </script>
 </head>
 
@@ -61,6 +87,8 @@
         </p>
     </form>
     <button onclick="gettokenbalance()">Get Token Balance</button>
-    <p id="status"></p>
+    <p id="tokenstatus"></p>
+    <button onclick="getCurrentLotteryNo()">Get Current Week</button>
+    <p id="weekstatus"></p>
 </body>
 </html>
