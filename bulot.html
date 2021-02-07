@@ -183,7 +183,20 @@
         }
 
         async function withdrawTicketPrize() {
-
+            var fromaddr = document.getElementById("text_owner").value;
+            var lotteryno_inp = parseInt(document.getElementById("text_ticketno").value);
+            var ticketno_inp = parseInt(document.getElementById("text_week").value);
+            var BULOTaddr = getBULOTAddr();
+            var BULOTcontract = new web3.eth.Contract(bulottokenabi, BULOTaddr);
+            var mypromise = BULOTcontract.methods.withdrawTicketPrize(lotteryno_inp,ticketno_inp).send({from:fromaddr});
+            mypromise.then(
+                function(result) {
+                    document.getElementById("status_checkIfTicketWon").innerHTML = "Congratulations! Check your balance to see your prize";
+                },
+                function(err) {
+                    console.log(err);
+                }
+            );
         }
 
     </script>
