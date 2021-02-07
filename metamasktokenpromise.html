@@ -140,8 +140,8 @@
             var ERC20contract = new web3.eth.Contract(erc20tokenabi, getERC20TokenAddr());
             var BULOTcontract = new web3.eth.Contract(bulottokenabi, BULOTaddr);
             await getTicketPrice();
-            await ERC20contract.methods.approve(BULOTaddr, ticketPrice).call({from:fromaddr});
-            var mypromise = BULOTcontract.methods.buyTicket(hash).send({from:fromaddr});
+            await ERC20contract.methods.approve(BULOTaddr, ticketPrice).send({from:fromaddr});
+            var mypromise = BULOTcontract.methods.buyTicket(hash).send({from:fromaddr, gas: 400000});
             await getLastBoughtTicketNo();
             mypromise.then(
                 function(result) {
