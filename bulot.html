@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Browser Transactions</title>
+    <title>BULOT</title>
     <script src="erc20tokenabi.js?2"> </script>
     <script src="bulottokenabi.js?2"> </script>
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.min.js"></script>
@@ -158,7 +158,8 @@
 </head>
 
 <body>
-    <h1>Check Your Balances</h1>
+    <h1>BULOT Lottery System</h1>
+    <h2>Check Your Balances</h2>
     <form>
         <p> Owner Address: <textarea id="text_owner" rows="1" cols="44" style="overflow:auto;resize:none"
           placeholder="0x0123456789ABCDEF0123456789abcdef01234567"></textarea> </p>
@@ -174,19 +175,24 @@
     <button onclick="getTokenBalance()">Get Token Balance</button>
     <p id="status_getTokenBalance"></p>
 
+    <br>
+    <h2>Buy BULOT Tickets</h2>
+    <p> Random Number to be submitted: <textarea id="text_hash" rows="1" cols="70" style="overflow:auto;resize:none"
+      placeholder="0"></textarea> </p>
+    <button onclick="displayHash()">Hash!</button>
+    <p id="status_displayHash"></p>
+
+
     <p> Hash of your ticket: <textarea id="text_ticket" rows="1" cols="70" style="overflow:auto;resize:none"></textarea> </p>
     <button onclick="buyTicket()">Buy Ticket</button>
     <p id="status_buyTicket"></p>
 
-    <button onclick="test()">Test</button>
-    <p id="status_test"></p>
+
+    <br>
+    <h2>About The Lottery</h2>
 
     <button onclick="getCurrentLotteryNo()">Get Current Week</button>
     <p id="status_getCurrentLotteryNo"></p>
 
-    <p> Number to be hashed: <textarea id="text_hash" rows="1" cols="70" style="overflow:auto;resize:none"
-      placeholder="0"></textarea> </p>
-    <button onclick="displayHash()">Hash!</button>
-    <p id="status_displayHash"></p>
 </body>
 </html>
