@@ -76,7 +76,7 @@
             var mypromise = BULOTcontract.methods.getCurrentLotteryNo().call();
             mypromise.then(
                 function(result) {
-                    document.getElementById("status_getCurrentLotteryNo").innerHTML = "Current Lottery No: " + mark_text(result);
+                    document.getElementById("status_getCurrentLotteryNo").value = `${result}`
                     lotteryNo = result;
                 },
                 function(err) {
@@ -203,23 +203,41 @@
     <h2>Buy BULOT Tickets</h2>
     <br>
 
-    <p> Random Number to be submitted: <textarea id="text_hash" rows="1" cols="70" style="overflow:auto;resize:none"
-      placeholder="0"></textarea> </p>
+    <span class="input">
+        <input id="text_hash" type="text" placeholder="Number to hash"> 
+    </span>
     <button onclick="displayHash()">Hash!</button>
     <p id="status_displayHash"></p>
-    <br>
 
-    <p> Hash of your ticket: <textarea id="text_ticket" rows="1" cols="70" style="overflow:auto;resize:none"></textarea> </p>
-    <button onclick="buyTicket()">Buy Ticket</button>
-    <p id="status_buyTicket"></p>
-    <br>
 
-    <p> Your random number: <textarea id="reveal_number" rows="1" cols="20" style="overflow:auto;resize:none"></textarea>
-        Your ticket number: <textarea id="reveal_ticketNo" rows="1" cols="20" style="overflow:auto;resize:none"></textarea>
+    <p>
+      <span class="input">
+        <input id="text_ticket" type="text" placeholder="Your hashed random number">
+      </span>
+      <button onclick="buyTicket()">Buy Ticket</button>
     </p>
+    
+    <p id="status_buyTicket"></p>
+ 
+    <p>
+        <span class="input" style="size: 400px">
+            <input id="status_getCurrentLotteryNo" type="text" value="Current Lottery No: " style="size: 400px" disabled="true">
+        </span>
+        <button onclick="getCurrentLotteryNo()">Get Current Week</button>
+    </p>
+    
+
+    <p>
+     <span class="input">
+        <input id="reveal_number" type="text" placeholder="Your random number">
+     </span>
+     <span class="input">
+        <input id="reveal_ticketNo" type="text" placeholder="Your ticket number">
+    </span>
     <button onclick="reveal()">Reveal Number</button>
+    </p>
+    
     <p id="status_reveal"></p>
-    <br>
 
     <br>
     <h2>About The Lottery</h2>
