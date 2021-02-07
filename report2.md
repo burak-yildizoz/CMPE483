@@ -1,5 +1,12 @@
 # CMPE 483 Project Part 2
 
+**Authors:**
+* Muhammed Enes Toptaş [@EnesToptas](https://github.com/EnesToptas)
+* Burak Yıldızöz [@burak-yildizoz](https://github.com/burak-yildizoz)
+* Selman Berk Özkurt [@SelmanB](https://github.com/SelmanB)
+
+---
+
 ## Notable Changes Since Project 1
 * Minor modifications are made to the solidity code that delete some of the storage data after use, to save gas.
 
@@ -25,27 +32,28 @@ These files can be accessed through the http servers we set in our machines, or 
 ### Introduction
 When launched, the website gives the user some pop up warning about usage issues related to blockchain systems. Then, if the user does not have a wallet connected, another pop up advises the user to get Metamask, like was done in the example in the lectures. Later, the user can enter some of her addresses and see how many tokens does she have as the specific ERC20 currency we are using in the BULOT system.
 
-<hr/>![bulot1](bulot1.jpeg)<hr/>
+<img src="./fig/bulot1.jpeg"/><br>
+
 ### Buying a Ticket
 The user can then use our hash calculator to get what she needs to enter while buying a ticket. Then by entering this hash, she can buy a ticket. While buying the ticket, cryptowallet (Metamask in our example) prompts the user twice: one to confirm the transaction of the necessary amount of tokens to the lottery contract, and another to confirm the gas usage associated with calling the BULOT contract to buy the ticket. Once the ticket is bought, the user is shown the ticket number and lottery number associated with the ticket she bought. To keep track of the time, the user can use the current lottery number button anytime.
 
-<hr/>![bulot2](bulot2.jpeg)<hr/>
-<hr/>![bulot3](bulot3.jpeg)<hr/>
-<hr/>![bulot4](bulot4.jpeg)<hr/>
-<hr/>![bulot5](bulot5.jpeg)<hr/>
-
+<img src="./fig/bulot2.jpeg"/><br><br>
+<img src="./fig/bulot3.jpeg"/><br><br>
+<img src="./fig/bulot4.jpeg"/><br><br>
+<img src="./fig/bulot5.jpeg"/><br>
 
 
 ### Revealing a Ticket's Random Number
-Then the user can input the random number she had committed to, to conclude the reveal stage. 
-<hr/>![bulot6](bulot6.jpeg)<hr/>
-<hr/>![bulot7](bulot7.jpeg)<hr/>
+Then the user can input the random number she had committed to, to conclude the reveal stage.
+
+<img src="./fig/bulot6.jpeg"/><br><br>
+<img src="./fig/bulot7.jpeg"/><br>
 
 
 
 ### Checking the Results
-Lastly, to see the result of any lottery ticket, and also to redeem any possible prize, the user can use the fields at the last section to enter the lottery number and the ticket number. Then, to save gas, the user can first see how much did the ticket win, then later click the other button to redeem the prize if she won any. 
-<hr/>![bulot8](bulot8.jpeg)<hr/>
-<hr/>![bulot9](bulot9.jpeg)<hr/>
-<hr/>![bulot10](bulot10.jpeg)<hr/>
+Lastly, to see the result of any lottery ticket, and also to redeem any possible prize, the user can use the fields at the last section to enter the lottery number and the ticket number. Then, to save gas, the user can first see how much did the ticket win, then later click the other button to redeem the prize if she won any.
 
+<img src="./fig/bulot8.jpeg"/><br><br>
+<img src="./fig/bulot9.jpeg"/><br><br>
+<img src="./fig/bulot10.jpeg"/><br>

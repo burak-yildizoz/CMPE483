@@ -36,14 +36,14 @@ def run_cp_kill(html_page, port):
 
 def run_local_server(port = 8000):
     # https://stackoverflow.com/questions/15260558/python-tcpserver-address-already-in-use-but-i-close-the-server-and-i-use-allow
-    socketserver.TCPServer.allow_reuse_address = True # required for fast reuse ! 
+    socketserver.TCPServer.allow_reuse_address = True # required for fast reuse !
     Handler = http.server.SimpleHTTPRequestHandler
     httpd = socketserver.TCPServer(('', port), Handler)
     print('Creating server at port', port)
     httpd.serve_forever()
 
 if __name__ == '__main__':
-    html_page = 'bulot.html'
+    html_page = 'bulot_ipfs.html'
     if len(sys.argv) == 2:
         html_page = str(sys.argv[1])
     print(html_page)
