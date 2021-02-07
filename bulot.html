@@ -12,10 +12,6 @@
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.min.js"></script>
     <script>
 
-        var ticketPrice;
-        var lastBoughtTicketNo;
-        var lotteryNo = 0;
-        var hashResult;
 
         window.addEventListener('load', async () => {
             // Modern dapp browsers...
@@ -78,7 +74,6 @@
             mypromise.then(
                 function(result) {
                     document.getElementById("status_getCurrentLotteryNo").value = `${result}`
-                    lotteryNo = result;
                 },
                 function(err) {
                     console.log(err);
@@ -92,9 +87,7 @@
             var BULOTcontract = new web3.eth.Contract(bulottokenabi, getBULOTAddr());
             var mypromise = BULOTcontract.methods.getHash(text).call();
             mypromise.then(
-                function(result) {
-                    hashResult = result;
-                },
+                function(result) {},
                 function(err) {
                     console.log(err);
                 }
@@ -104,20 +97,18 @@
 
         async function displayHash() {
             var text = document.getElementById("text_hash").value;
-            await hash(text);
+            let hashResult = await hash(text);
             document.getElementById("status_displayHash").innerHTML = "Hash of " + text + ": " + mark_text(hashResult);
         }
 
 
         async function getLastBoughtTicketNo() {
             var fromaddr = document.getElementById("text_owner").value;
-            await getCurrentLotteryNo();
+            let lotteryNo = await getCurrentLotteryNo();
             var BULOTcontract = new web3.eth.Contract(bulottokenabi, getBULOTAddr());
             var mypromise = BULOTcontract.methods.getLastBoughtTicketNo(lotteryNo).call({from:fromaddr});
             mypromise.then(
-                function(result) {
-                    lastBoughtTicketNo = result;
-                },
+                function(result) {},
                 function(err) {
                     console.log(err);
                 }
@@ -129,9 +120,7 @@
             var BULOTcontract = new web3.eth.Contract(bulottokenabi, getBULOTAddr());
             var mypromise = BULOTcontract.methods.getTicketPrice().call();
             mypromise.then(
-                function(result) {
-                    ticketPrice = result;
-                },
+                function(result) {},
                 function(err) {
                     console.log(err);
                 }
@@ -145,12 +134,13 @@
             var BULOTaddr = getBULOTAddr();
             var ERC20contract = new web3.eth.Contract(erc20tokenabi, getERC20TokenAddr());
             var BULOTcontract = new web3.eth.Contract(bulottokenabi, BULOTaddr);
-            await getTicketPrice();
+            let ticketPrice = await getTicketPrice();
             await ERC20contract.methods.approve(BULOTaddr, ticketPrice).send({from:fromaddr});
             var mypromise = BULOTcontract.methods.buyTicket(hash).send({from:fromaddr, gas: 400000});
             mypromise.then(
                 async function(result) {
-                    await getLastBoughtTicketNo();
+                    let lastBoughtTicketNo = await getLastBoughtTicketNo();
+                    let lotteryNo = await getCurrentLotteryNo();
                     document.getElementById("status_buyTicket").innerHTML = "Bought ticket: " + mark_text(lastBoughtTicketNo) + " (lottery number: " + mark_text(lotteryNo) + ")";
                 },
                 function(err) {
@@ -206,7 +196,7 @@
     <br>
 
     <form>
-        <p> Owner Address: <textarea id="text_owner" rows="1" cols="52" style="overflow:auto;resize:none"
+        <p> Owner Address: <textarea id="text_owner" rows="1" cols="70" style="overflow:auto;resize:none"
           placeholder="0x0123456789ABCDEF0123456789abcdef01234567"></textarea> </p>
         <h2>Check Your Balances</h2>
         <p> Token:<br>
@@ -227,7 +217,7 @@
     <br>
 
     <span class="input">
-        <input id="text_hash" type="text" placeholder="Number to hash"> 
+        <input id="text_hash" type="text" placeholder="Number to hash">
     </span>
     <button onclick="displayHash()">Hash!</button>
     <p id="status_displayHash"></p>
