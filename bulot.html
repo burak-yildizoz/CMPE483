@@ -12,6 +12,11 @@
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.min.js"></script>
     <script>
 
+        var ticketPrice;
+        var lastBoughtTicketNo;
+        var lotteryNo = 0;
+        var hashResult;
+
         window.addEventListener('load', async () => {
             // Modern dapp browsers...
             if (window.ethereum) {
@@ -73,6 +78,7 @@
             mypromise.then(
                 function(result) {
                     document.getElementById("status_getCurrentLotteryNo").value = `${result}`
+                    lotteryNo = result;
                 },
                 function(err) {
                     console.log(err);
@@ -86,7 +92,9 @@
             var BULOTcontract = new web3.eth.Contract(bulottokenabi, getBULOTAddr());
             var mypromise = BULOTcontract.methods.getHash(text).call();
             mypromise.then(
-                function(result) {},
+                function(result) {
+                    hashResult = result;
+                },
                 function(err) {
                     console.log(err);
                 }
@@ -96,18 +104,20 @@
 
         async function displayHash() {
             var text = document.getElementById("text_hash").value;
-            let hashResult = await hash(text);
+            await hash(text);
             document.getElementById("status_displayHash").innerHTML = "Hash of " + text + ": " + mark_text(hashResult);
         }
 
 
         async function getLastBoughtTicketNo() {
             var fromaddr = document.getElementById("text_owner").value;
-            let lotteryNo = await getCurrentLotteryNo();
+            await getCurrentLotteryNo();
             var BULOTcontract = new web3.eth.Contract(bulottokenabi, getBULOTAddr());
             var mypromise = BULOTcontract.methods.getLastBoughtTicketNo(lotteryNo).call({from:fromaddr});
             mypromise.then(
-                function(result) {},
+                function(result) {
+                    lastBoughtTicketNo = result;
+                },
                 function(err) {
                     console.log(err);
                 }
@@ -119,7 +129,9 @@
             var BULOTcontract = new web3.eth.Contract(bulottokenabi, getBULOTAddr());
             var mypromise = BULOTcontract.methods.getTicketPrice().call();
             mypromise.then(
-                function(result) {},
+                function(result) {
+                    ticketPrice = result;
+                },
                 function(err) {
                     console.log(err);
                 }
@@ -133,13 +145,12 @@
             var BULOTaddr = getBULOTAddr();
             var ERC20contract = new web3.eth.Contract(erc20tokenabi, getERC20TokenAddr());
             var BULOTcontract = new web3.eth.Contract(bulottokenabi, BULOTaddr);
-            let ticketPrice = await getTicketPrice();
+            await getTicketPrice();
             await ERC20contract.methods.approve(BULOTaddr, ticketPrice).send({from:fromaddr});
             var mypromise = BULOTcontract.methods.buyTicket(hash).send({from:fromaddr, gas: 400000});
             mypromise.then(
                 async function(result) {
-                    let lastBoughtTicketNo = await getLastBoughtTicketNo();
-                    let lotteryNo = await getCurrentLotteryNo();
+                    await getLastBoughtTicketNo();
                     document.getElementById("status_buyTicket").innerHTML = "Bought ticket: " + mark_text(lastBoughtTicketNo) + " (lottery number: " + mark_text(lotteryNo) + ")";
                 },
                 function(err) {
@@ -164,18 +175,40 @@
                 })
         }
 
+        async function checkIfTicketWon() {
+            var fromaddr = document.getElementById("text_owner").value;
+            var lotteryno_inp=Number(document.getElementById("text_ticketno").value);
+            var ticketno_inp=Number(document.getElementById("text_week").value);
+            var BULOTaddr = getBULOTAddr();
+            var BULOTcontract = new web3.eth.Contract(bulottokenabi, BULOTaddr);
+            var mypromise=BULOTcontract.methods.checkIfTicketWon(lotteryno_inp,ticketno_inp).send({from:fromaddr});
+            mypromise.then(
+                function(result) {
+                    document.getElementById("status_buyTicket").innerHTML = "Amount won: " + mark_text(result);
+                },
+                function(err) {
+                    console.log(err);
+                }
+            );
+        }
+
+        async function withdrawTicketPrize() {
+
+        }
+
     </script>
 </head>
 
 <body>
     <h1>BULOT Lottery System</h1>
     <br>
-    <h2>Check Your Balances</h2>
+
     <br>
 
     <form>
-        <p> Owner Address: <textarea id="text_owner" rows="1" cols="70" style="overflow:auto;resize:none"
+        <p> Owner Address: <textarea id="text_owner" rows="1" cols="52" style="overflow:auto;resize:none"
           placeholder="0x0123456789ABCDEF0123456789abcdef01234567"></textarea> </p>
+        <h2>Check Your Balances</h2>
         <p> Token:<br>
             <input type="radio" id="token1" name="token" value=0x03207A15dE9B5A4d2BA11B2aa60Dc6272eA0b5BE>
                 <label for="token1" checked>BUCOIN</label><br>
@@ -194,7 +227,7 @@
     <br>
 
     <span class="input">
-        <input id="text_hash" type="text" placeholder="Number to hash">
+        <input id="text_hash" type="text" placeholder="Number to hash"> 
     </span>
     <button onclick="displayHash()">Hash!</button>
     <p id="status_displayHash"></p>
@@ -206,17 +239,13 @@
       </span>
       <button onclick="buyTicket()">Buy Ticket</button>
     </p>
-
+    
     <p id="status_buyTicket"></p>
-
-    <p>
-        <span class="input" style="size: 400px">
-            <input id="status_getCurrentLotteryNo" type="text" value="Current Lottery No: " style="size: 400px" disabled="true">
-        </span>
-        <button onclick="getCurrentLotteryNo()">Get Current Week</button>
-    </p>
-
-
+    <p>Do not forget to reveal your random number in the following week. You will not be able to get a prize otherwise.</p> 
+    
+    <br>
+    <h2>Reveal Your Ticket</h2>
+    <br>
     <p>
      <span class="input">
         <input id="reveal_number" type="text" placeholder="Your random number">
@@ -226,17 +255,31 @@
     </span>
     <button onclick="reveal()">Reveal Number</button>
     </p>
-
+    
     <p id="status_reveal"></p>
 
     <br>
     <h2>About The Lottery</h2>
     <br>
 
-    <button onclick="getCurrentLotteryNo()">Get Current Week</button>
-    <p id="status_getCurrentLotteryNo"></p>
-    <br>
+    <p>
+        <span class="input" style="size: 400px">
+            <input id="status_getCurrentLotteryNo" type="text" value="Current Lottery No: " style="size: 400px" disabled="true">
+        </span>
+        <button onclick="getCurrentLotteryNo()">Get Current Week</button>
+    </p>
 
     <br>
+    <h2>Get Your Prizes</h2>
+    <br>
+    <p>The lottery you want to check:<textarea id="text_week" rows="1" cols="15" style="overflow:auto;resize:none"></textarea></p>
+    <p>The ticket number you want to check:<textarea id="text_ticketno" rows="1" cols="15" style="overflow:auto;resize:none"></textarea></p>
+    <button onclick="checkIfTicketWon()">Check for the Prize</button>
+    <p id="status_checkIfTicketWon"></p>
+
+    <p>Make sure you have actually won prize to save from transaction costs.</p>
+    <button onclick="withdrawTicketPrize()">Get Your Prize</button>
+    <p id="status_withdrawTicketPrize"></p>
+
 </body>
 </html>
