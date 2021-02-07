@@ -167,14 +167,14 @@
 
         async function checkIfTicketWon() {
             var fromaddr = document.getElementById("text_owner").value;
-            var lotteryno_inp=Number(document.getElementById("text_ticketno").value);
-            var ticketno_inp=Number(document.getElementById("text_week").value);
+            var lotteryno_inp = parseInt(document.getElementById("text_ticketno").value);
+            var ticketno_inp = parseInt(document.getElementById("text_week").value);
             var BULOTaddr = getBULOTAddr();
             var BULOTcontract = new web3.eth.Contract(bulottokenabi, BULOTaddr);
-            var mypromise=BULOTcontract.methods.checkIfTicketWon(lotteryno_inp,ticketno_inp).send({from:fromaddr});
+            var mypromise = BULOTcontract.methods.checkIfTicketWon(lotteryno_inp,ticketno_inp).send({from:fromaddr});
             mypromise.then(
                 function(result) {
-                    document.getElementById("status_buyTicket").innerHTML = "Amount won: " + mark_text(result);
+                    document.getElementById("status_checkIfTicketWon").innerHTML = "Amount won: " + mark_text(Number(result));
                 },
                 function(err) {
                     console.log(err);
