@@ -43,7 +43,7 @@ def run_local_server(port = 8000):
     httpd.serve_forever()
 
 if __name__ == '__main__':
-    html_page = 'metamasktokenpromise.html'
+    html_page = 'bulot.html'
     if len(sys.argv) == 2:
         html_page = str(sys.argv[1])
     print(html_page)
