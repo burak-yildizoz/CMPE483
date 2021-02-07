@@ -12,6 +12,7 @@
     <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.min.js"></script>
     <script>
 
+        alert("Please enter your address first and then check your balance, we won't be able to make transactions unless you check your balance")
 
         window.addEventListener('load', async () => {
             // Modern dapp browsers...
@@ -50,6 +51,7 @@
         }
 
         function getBULOTAddr() {
+
             return "0x80078e8f6f2DEc1B80f2F4cf940acCcCCb6Fa8AF";  // KAYYUMCOIN, period: 5 minutes
         }
 
@@ -167,11 +169,11 @@
 
         async function checkIfTicketWon() {
             var fromaddr = document.getElementById("text_owner").value;
-            var lotteryno_inp = parseInt(document.getElementById("text_ticketno").value);
-            var ticketno_inp = parseInt(document.getElementById("text_week").value);
+            var lotteryno_inp = parseInt(document.getElementById("text_week").value);
+            var ticketno_inp = parseInt(document.getElementById("text_ticketno").value);
             var BULOTaddr = getBULOTAddr();
             var BULOTcontract = new web3.eth.Contract(bulottokenabi, BULOTaddr);
-            var mypromise = BULOTcontract.methods.checkIfTicketWon(lotteryno_inp,ticketno_inp).send({from:fromaddr});
+            var mypromise = BULOTcontract.methods.checkIfTicketWon(lotteryno_inp, ticketno_inp).call({from:fromaddr});
             mypromise.then(
                 function(result) {
                     document.getElementById("status_checkIfTicketWon").innerHTML = "Amount won: " + mark_text(Number(result));
@@ -184,14 +186,17 @@
 
         async function withdrawTicketPrize() {
             var fromaddr = document.getElementById("text_owner").value;
-            var lotteryno_inp = parseInt(document.getElementById("text_ticketno").value);
-            var ticketno_inp = parseInt(document.getElementById("text_week").value);
+            var lotteryno_inp = parseInt(document.getElementById("text_week").value);
+            var ticketno_inp = parseInt(document.getElementById("text_ticketno").value);
             var BULOTaddr = getBULOTAddr();
             var BULOTcontract = new web3.eth.Contract(bulottokenabi, BULOTaddr);
-            var mypromise = BULOTcontract.methods.withdrawTicketPrize(lotteryno_inp,ticketno_inp).send({from:fromaddr});
+            var mypromise = BULOTcontract.methods.withdrawTicketPrize(lotteryno_inp, ticketno_inp).send({from:fromaddr, gas: 400000});
             mypromise.then(
                 function(result) {
-                    document.getElementById("status_checkIfTicketWon").innerHTML = "Congratulations! Check your balance to see your prize";
+                    document.getElementById("status_withdrawTicketPrize").innerHTML = 
+                    "Congratulations! Check your balance to see your prize";
+
+
                 },
                 function(err) {
                     console.log(err);
@@ -212,13 +217,8 @@
         <p> Owner Address: <textarea id="text_owner" rows="1" cols="70" style="overflow:auto;resize:none"
           placeholder="0x0123456789ABCDEF0123456789abcdef01234567"></textarea> </p>
         <h2>Check Your Balances</h2>
-        <p> Token:<br>
-            <input type="radio" id="token1" name="token" value=0x03207A15dE9B5A4d2BA11B2aa60Dc6272eA0b5BE>
-                <label for="token1" checked>BUCOIN</label><br>
-            <input type="radio" id="token2" name="token" value=0x12c25Bd781709166Fd24784eE7C03bFB93480699>
-                <label for="token2">Turkish Lira</label><br>
-            <input type="radio" id="token3" name="token" value=0x9F2faBAC1274C2C0FaFE403C6F19ea019f70D908>
-                <label for="token3">KAYYUMCOIN</label><br>
+        <p> <br>
+            <input type="radio" style="display: none" checked="checked" id="token3" name="token" value=0x9F2faBAC1274C2C0FaFE403C6F19ea019f70D908>
         </p>
     </form>
     <button onclick="getTokenBalance()">Get Token Balance</button>
@@ -275,9 +275,16 @@
     <br>
     <h2>Get Your Prizes</h2>
     <br>
-    <p>The lottery you want to check:<textarea id="text_week" rows="1" cols="15" style="overflow:auto;resize:none"></textarea></p>
-    <p>The ticket number you want to check:<textarea id="text_ticketno" rows="1" cols="15" style="overflow:auto;resize:none"></textarea></p>
+    <p>
+    <span class="input">
+        <input id="text_week" type="text" placeholder="Enter the lottery number">
+     </span>
+     <span class="input">
+        <input id="text_ticketno" type="text" placeholder="Enter the ticket number">
+    </span>
     <button onclick="checkIfTicketWon()">Check for the Prize</button>
+    </p>
+    
     <p id="status_checkIfTicketWon"></p>
 
     <p>Make sure you have actually won prize to save from transaction costs.</p>
